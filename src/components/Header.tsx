@@ -19,7 +19,8 @@ const Header = () => {
       </div>
       <nav className="text-white space-x-4">
         <a href="/" onClick={(event) => handleNavigation("/", event)} className="hover:text-gray-400">Homepage</a>
-        <a href="#animes" className="hover:text-gray-400">Animes</a>
+        <a href="/Animes/" className="hover:text-gray-400">Animes</a>
+        <a href="/Episodes/" className="hover:text-gray-400">Episodes</a>
       </nav>
       <div className="space-x-4">
         <button className="text-white hover:text-gray-400">
