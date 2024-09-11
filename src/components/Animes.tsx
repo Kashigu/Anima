@@ -1,27 +1,32 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getAnimes } from '@/lib/client/animesClient';
+import { useRouter } from 'next/navigation';
+import mongoose from 'mongoose';
+
 
 interface Anime {
-    _id: string;
+    _id:mongoose.Schema.Types.ObjectId;
+    id: string;
     title: string;
     description: string;
     genre: Array<string>;
-    image_url: string; // Assuming each anime has an image URL
+    image_url: string; 
 }
 
 function Animes() {
-    // Define state to store anime data and loading state
+    // Define state to store anime data state
     const [animes, setAnimes] = useState<Anime[]>([]);
+    const router = useRouter();
 
-    // Fetch animes when the component mounts
+    
     useEffect(() => {
-        async function gettingAnimes() { // Renamed function
+        async function gettingAnimes() { 
             const data = await getAnimes(); // Call the getAnimes function
             setAnimes(data || []);
         }
 
-        gettingAnimes(); // Call the renamed function
+        gettingAnimes(); 
     }, []);
 
     return (
@@ -35,7 +40,7 @@ function Animes() {
                 </div>
                 <div className="grid grid-cols-4 gap-x-8 gap-y-4 bg-custom-blue-dark">
                     {animes.map((anime) => (
-                        <div key={anime._id} className="flex flex-col items-center">
+                        <div key={anime.id} className="flex flex-col items-center" onClick={() => router.push(`/AnimesPage/${anime.id}`)}>
                             <div className="relative w-[300px] h-[400px]">
                                 <Image
                                     src={anime.image_url} 

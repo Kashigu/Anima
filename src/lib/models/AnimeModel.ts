@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const AnimeSchema = new mongoose.Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },

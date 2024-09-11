@@ -1,19 +1,33 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import connectToDatabase from '../../lib/db'; // Update this path if necessary
-import AnimeModel from '../../lib/models/AnimeModel'; // Update this path if necessary
+import connectToDatabase from '../../lib/db';
+import AnimeModel from '../../lib/models/AnimeModel';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
+    const { id } = req.query;
+
     try {
-      const animes = await AnimeModel.find({});
-      res.status(200).json(animes);
+      if (id && typeof id === 'string') {
+        const anime = await AnimeModel.findOne({ id });
+        if (anime) {
+          res.status(200).json(anime);
+        } else {
+          res.status(404).json({ error: 'Anime not found' });
+        }
+      } else {
+        const animes = await AnimeModel.find({});
+        res.status(200).json(animes);
+      }
     } catch (err) {
-      res.status(500).json({ error: 'Failed to fetch animes' });
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   } else {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
+
+export default handler;
