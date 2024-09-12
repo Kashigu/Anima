@@ -1,6 +1,7 @@
 import AnimesPage from '@/components/animePage/AnimesPage';
 import { getAnimeById } from '@/lib/client/animesClient';
 import mongoose from 'mongoose';
+import '../../../globals.css'; // Ensure this path is correct
 
 interface Anime {
   _id:mongoose.Schema.Types.ObjectId;
@@ -14,7 +15,6 @@ interface Anime {
 async function fetchAnimeById(id: string): Promise<Anime | null> {
   try {
     const data = await getAnimeById(id);
-    console.log(id);
     if (!data) {
       return null; // Ensure we return null if data is not found
     }
@@ -28,5 +28,11 @@ async function fetchAnimeById(id: string): Promise<Anime | null> {
 export default async function AnimePage({ params }: { params: { id: string } }) {
   const { id } = params;
   const anime = await fetchAnimeById(id);
-  return <AnimesPage anime={anime} />;
+  return (
+    <div className=" bg-custom-blue-dark">
+      <AnimesPage anime={anime} />
+    </div>
+  );
+  
+  
 }
