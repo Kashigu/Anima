@@ -20,4 +20,15 @@ async function getAnimeById(id: string) {
   }
 }
 
-export { getAnimes, getAnimeById };
+async function getEpisodesOfAnimeById(id: string) {
+  try {
+    const response = await axiosClient.get(`api/${id}/episodes`);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch episodes:', error);
+    return null;
+  }
+}
+
+export { getAnimes, getAnimeById , getEpisodesOfAnimeById};
