@@ -74,15 +74,15 @@ function AnimesPage({ anime }: AnimesPageProps) {
         </div>
       </div>
       
-      <div className="flex flex-col mb-12 w-full mt-4 text-white text-4xl font-bold justify-start">
-        Latest Releases
+      <div className="flex flex-col w-full mt-6 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+        Episodes
       </div>
       <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark mt-6">
         {episodes.map((episode) => (
           <div key={episode.id} className="relative flex flex-col items-center">
             <Link href={`/EpisodePage/${episode.id}`} className="relative flex flex-col items-center">
               {/* Thumbnail Image */}
-              <div className="relative w-[500px] h-[400px]">
+              <div className="relative w-[400px] h-[250px]">
                 <Image
                   src={episode.thumbnail_url} 
                   alt={episode.title}
