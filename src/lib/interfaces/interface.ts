@@ -1,0 +1,21 @@
+// src/lib/types/interfaces.ts
+import mongoose from 'mongoose';
+
+export interface Anime {
+  _id: mongoose.Schema.Types.ObjectId;
+  id: string;
+  title: string;
+  description: string;
+  genre: Array<string>;
+  image_url: string;
+}
+
+export interface Episode {
+  _id: mongoose.Schema.Types.ObjectId;
+  id: string;
+  idAnime: string;
+  title: string;
+  video_url: string;
+  episodeNumber: string;
+  thumbnail_url: string;
+}

@@ -1,20 +1,33 @@
+import connectToDatabase from '@/lib/db';
+import EpisodeModel from '@/lib/models/EpisodeModel';
 import { NextApiRequest, NextApiResponse } from 'next';
-import connectToDatabase from '../../../lib/db'; // Adjust the path as needed
-import EpisodeModel from '../../../lib/models/EpisodeModel'; // Adjust the path as needed
+
+
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
-    const { id } = req.query; // Extract the dynamic parameter
+    const { id, episodeId } = req.query;
 
     try {
       if (id && typeof id === 'string') {
-        // Fetch episodes based on the provided id
-        const episodes = await EpisodeModel.find({ idAnime: id });
-        res.status(200).json(episodes);
+        if (episodeId && typeof episodeId === 'string') {
+          // Fetch a specific episode by animeId and episodeId
+          const episode = await EpisodeModel.findOne({ idAnime: id, id: episodeId });
+          console.log('Fetched episode:', episode); // Log for debugging
+          if (episode) {
+            res.status(200).json(episode);
+          } else {
+            res.status(404).json({ error: 'Episode not found' });
+          }
+        } else {
+          // Fetch all episodes for a given animeId
+          const episodes = await EpisodeModel.find({ idAnime: id });
+          res.status(200).json(episodes);
+        }
       } else {
-        res.status(400).json({ error: 'Invalid ID' });
+        res.status(400).json({ error: 'Invalid or missing animeId' });
       }
     } catch (err) {
       console.error('Error fetching episodes:', err);

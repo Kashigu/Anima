@@ -4,25 +4,9 @@ import mongoose from 'mongoose';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Anime, Episode } from '@/lib/interfaces/interface';
 
-interface Anime {
-  _id: mongoose.Schema.Types.ObjectId;
-  id: string;
-  title: string;
-  description: string;
-  genre: Array<string>;
-  image_url: string;
-}
 
-interface Episode {
-  _id: mongoose.Schema.Types.ObjectId;
-  id: string;
-  idAnime: string;
-  title: string;
-  video_url: string;
-  episodeNumber: string;
-  thumbnail_url: string; // URL of the video thumbnail image
-}
 
 interface AnimesPageProps {
   anime: Anime | null;
@@ -80,7 +64,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
       <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark mt-6">
         {episodes.map((episode) => (
           <div key={episode.id} className="relative flex flex-col items-center">
-            <Link href={`/EpisodesPage/${episode.id}`} className="relative flex flex-col items-center">
+            <Link href={`/EpisodesPage/${anime.id}/${episode.id}`} className="relative flex flex-col items-center">
               {/* Thumbnail Image */}
               <div className="relative w-[400px] h-[250px]">
                 <Image

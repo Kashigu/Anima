@@ -3,15 +3,7 @@ import { getAnimeById } from '@/lib/client/animesClient';
 import mongoose from 'mongoose';
 import '../../../globals.css'; // Ensure this path is correct
 import Episodes from '@/components/Episodes';
-
-interface Anime {
-  _id:mongoose.Schema.Types.ObjectId;
-  id: string;
-  title: string;
-  description: string;
-  genre: Array<string>;
-  image_url: string;
-}
+import { Anime } from '@/lib/interfaces/interface';
 
 async function fetchAnimeById(id: string): Promise<Anime | null> {
   try {

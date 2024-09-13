@@ -23,7 +23,6 @@ async function getAnimeById(id: string) {
 async function getEpisodesOfAnimeById(id: string) {
   try {
     const response = await axiosClient.get(`api/${id}/episodes`);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch episodes:', error);
@@ -31,4 +30,14 @@ async function getEpisodesOfAnimeById(id: string) {
   }
 }
 
-export { getAnimes, getAnimeById , getEpisodesOfAnimeById};
+async function getOneEpisodeOfAnimeById(id: string, episodeId: string) {
+  try {
+    const response = await axiosClient.get(`api/${id}/episodes?episodeId=${episodeId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch episode:', error);
+    return null;
+  }
+}
+
+export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById};
