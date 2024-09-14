@@ -34,7 +34,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
     <div className="container mx-auto bg-custom-blue-dark">
       {/* Title in the center */}
       <div className="flex flex-col mb-12 w-full justify-center items-center">
-        <h1 className="text-white text-4xl font-bold text-center mt-6">{anime.title}</h1>
+        <h1 className="text-white text-4xl font-bold text-center pt-5">{anime.title}</h1>
       </div>
   
       {/* Flex container for image on the left and description on the right */}

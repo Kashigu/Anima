@@ -15,7 +15,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         if (episodeId && typeof episodeId === 'string') {
           // Fetch a specific episode by animeId and episodeId
           const episode = await EpisodeModel.findOne({ idAnime: id, id: episodeId });
-          console.log('Fetched episode:', episode); // Log for debugging
           if (episode) {
             res.status(200).json(episode);
           } else {
