@@ -4,16 +4,7 @@ import { getAnimes } from '@/lib/client/animesClient';
 import { useRouter } from 'next/navigation';
 import mongoose from 'mongoose';
 import Link from 'next/link';
-
-
-interface Anime {
-    _id:mongoose.Schema.Types.ObjectId;
-    id: string;
-    title: string;
-    description: string;
-    genre: Array<string>;
-    image_url: string; 
-}
+import { Anime } from '@/lib/interfaces/interface';
 
 function Animes() {
     // Define state to store anime data state
