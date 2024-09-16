@@ -33,8 +33,8 @@ function AnimesPage({ anime }: AnimesPageProps) {
   return (
     <div className="container mx-auto bg-custom-blue-dark">
       {/* Title in the center */}
-      <div className="flex flex-col mb-12 w-full justify-center items-center">
-        <h1 className="text-white text-4xl font-bold text-center pt-5">{anime.title}</h1>
+      <div className="flex flex-col mb-8 w-full justify-center items-center text-4xl text-white text-center font-bold pt-5 ">
+        <Link href={`/AnimesPage/${anime.id}`}>{anime.title}</Link>
       </div>
   
       {/* Flex container for image on the left and description on the right */}
@@ -82,7 +82,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
                   </button>
                 </div>
                 {/* Episode Number */}
-                <div className="absolute top-0 right-0 m-4 bg-gray-800 text-white p-2 rounded-lg">
+                <div className="absolute top-0 right-0 m-4 bg-custom-dark text-white p-2 rounded-lg">
                   {episode.episodeNumber}
                 </div>
               </div>

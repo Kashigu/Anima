@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from 'next/image';
 import { Anime, Episode } from "@/lib/interfaces/interface";
+import { getEpisodesOfAnimeById } from "@/lib/client/animesClient";
+import Link from "next/link";
 
 interface EpisodesPageProps {
   animeEpisode: Episode | null;
@@ -11,6 +13,9 @@ interface EpisodesPageProps {
 function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+
+
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -58,6 +63,14 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
       }
     };
 
+    async function gettingEpisodesOfAnime() {
+      if (anime?.id) {
+        const data = await getEpisodesOfAnimeById(anime.id); // Call the getEpisodesOfAnimeById function
+        setEpisodes(data || []);
+      }
+    }
+    gettingEpisodesOfAnime();
+
     // Add keydown event listener
     window.addEventListener("keydown", handleKeyPress);
 
@@ -71,10 +84,11 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
   }
 
   return (
-    <div className="flex flex-col mb-12 w-full">
+    <div className="flex flex-col w-full">
       {/* Display anime title */}
-      <h1 className="text-4xl text-white text-center justify-center font-bold pt-5 mb-6">{anime?.title}</h1>
-
+      <div className="text-4xl text-white text-center justify-center font-bold pt-5 mb-8">
+        <Link href={`/AnimesPage/${anime.id}`}>{anime.title}</Link>
+      </div>
       <div className="flex justify-center pb-10 items-center">
         <div className="relative w-[975px] h-[675px] bg-black">
           {/* Video or Image */}
@@ -122,7 +136,7 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
           )}
 
           {/* Episode overlay */}
-          <div className={`absolute inset-0 flex flex-col justify-end items-start p-8 text-white bg-gradient-to-r from-darkBlue via-transparent to-transparent ${isVideoPlaying ? 'pointer-events-none' : ''}`}>
+          <div className={`absolute inset-0 flex flex-col justify-end items-start font-bold text-stroke-sm stroke-black p-8 text-white bg-gradient-to-r from-darkBlue via-transparent to-transparent ${isVideoPlaying ? 'pointer-events-none' : ''}`}>
             <h2 className="text-2xl">{animeEpisode.title}</h2>
             <p>Episode {animeEpisode.episodeNumber}</p>
           </div>
@@ -131,18 +145,29 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
       {/* Anime and episode details at the bottom */}
       <div className="flex justify-between items-center w-full mt-6 p-4 bg-black text-white">
         <div className="flex items-center">
-          <Image
-            src={anime.image_url || '/default-thumbnail.png'}
-            alt={anime.title || "Anime Thumbnail"}
-            width={50}
-            height={50}
-            className="mr-4"
-          />
-          <div>
-            <h3 className="text-lg">{anime?.title}</h3>
-            {/* <p>{anime?.status} - Episode {animeEpisode.episodeNumber}</p> */}
-            {/* <p>{anime?.season}</p> */}
-          </div>
+          <Link href={`/AnimesPage/${anime.id}`}>
+            <Image
+              src={anime.image_url}
+              alt={anime.title}
+              width={50}
+              height={50}
+              className="mr-4"
+            />
+          </Link>
+          <Link href={`/AnimesPage/${anime.id}`}>
+            <div>
+              <h3 className="text-lg">{anime.title}</h3>
+            </div>
+          </Link>
+        </div>
+        <div className="flex items-center space-x-6">
+          {episodes.map((episode) => (
+            <div className="bg-custom-blue-dark text-white p-2 rounded-lg">
+              <Link href={`/EpisodesPage/${anime.id}/${episode.id}`} className="relative flex flex-col items-center">
+                {episode.episodeNumber}
+              </Link>
+            </div>
+          ))}
         </div>
         <div className="flex items-center space-x-6">
           <p>SubsPlease - 720p</p>
