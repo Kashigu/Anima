@@ -162,7 +162,7 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
         </div>
         <div className="flex items-center space-x-6">
           {episodes.map((episode) => (
-            <div className="bg-custom-blue-dark text-white p-2 rounded-lg">
+            <div key={episode.id} className="bg-custom-blue-dark text-white p-2 rounded-lg">
               <Link href={`/EpisodesPage/${anime.id}/${episode.id}`} className="relative flex flex-col items-center">
                 {episode.episodeNumber}
               </Link>
