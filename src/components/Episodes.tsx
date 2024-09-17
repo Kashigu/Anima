@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getEpisodes } from '@/lib/client/animesClient';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Episode } from '@/lib/interfaces/interface';
 
 function Episodes() {
     // Define state to store anime data state
     const [Episodes, setEpisodes] = useState<Episode[]>([]);
-    const router = useRouter();
+    
 
     
     useEffect(() => {
