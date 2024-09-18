@@ -28,8 +28,15 @@ module.exports = {
         '.text-stroke-sm': {
           '-webkit-text-stroke': '0.5px black',
         },
+        '.scrollbar-hide': {
+          'scrollbar-width': 'none', /* Firefox */
+          '-ms-overflow-style': 'none', /* Internet Explorer and Edge */
+        },
+        '.scrollbar-hide::-webkit-scrollbar': {
+          'display': 'none', /* Safari and Chrome */
+        },
       };
-      addUtilities(newUtilities);
+      addUtilities(newUtilities, ['responsive', 'hover']);
     },
   ],
 }

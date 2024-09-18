@@ -12,7 +12,7 @@ function Episodes() {
     
     useEffect(() => {
         async function gettingEpisodes() { 
-            const data = await getEpisodes(); // Call the getAnimes function
+            const data = await getEpisodes(); 
             console.log(data);
             setEpisodes(data || []);
         }

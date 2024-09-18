@@ -3,13 +3,13 @@ import React from "react";
 import Image from 'next/image'; // Import the Image component from Next.js
 import codegeassImage from "../../public/images/codegeassF.jpg"; // Correct the import
 
-const MainImage = () => {
+function MainImage(){
   return (
     <>
       <div className="flex flex-col mb-12 w-full">
       </div>
-      <div className="flex justify-center items-center "> {/* Centering the entire content */}
-        <div className="relative w-[975px] h-[675px]"> 
+      <div className="flex justify-center items-center "> 
+        <div className="relative w-[975px] h-[555px]"> 
           <Image
             src={codegeassImage} 
             alt="Code Geass"

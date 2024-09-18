@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <>
     <div className=" bg-custom-blue-dark">
-      <Animes/>
+      <Animes showFeature={false}/>
     </div>
     </>
   );
