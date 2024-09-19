@@ -14,6 +14,12 @@ module.exports = {
         'DEFAULT': '1px',
         'lg': '2px',
       },
+      borderRadius: {
+        'lg': '12px',  // Custom rounding for buttons if needed
+      },
+      boxShadow: {
+        'custom-button': '0px 4px 12px rgba(0, 0, 0, 0.3)', // Custom shadow for your button
+      },
     },
   },
   plugins: [
@@ -35,6 +41,19 @@ module.exports = {
         '.scrollbar-hide::-webkit-scrollbar': {
           'display': 'none', /* Safari and Chrome */
         },
+        '.custom-button': {
+          'width': '40px',
+          'height': '40px', 
+          'border-radius': '12px',  // custom rounded corners
+          'box-shadow': '0px 4px 12px rgba(0, 0, 0, 0.3)',  // custom shadow
+          'display': 'flex',
+          'justify-content': 'center',
+          'align-items': 'center',
+          'transition': 'background-color 0.3s ease',
+        },
+        '.custom-button:hover': {
+          'background-color': '#0c0c38', // change color on hover
+        }
       };
       addUtilities(newUtilities, ['responsive', 'hover']);
     },

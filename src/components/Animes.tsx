@@ -3,14 +3,14 @@ import Image from 'next/image';
 import { getAnimes } from '@/lib/client/animesClient';
 import Link from 'next/link';
 import { Anime } from '@/lib/interfaces/interface';
-import codegeassImage from "../../public/images/codegeassF.jpg";
 
 interface AnimesProps {
-    showFeature: boolean; // Prop to control feature display
+    showFeature: boolean; 
 }
 
 function Animes({ showFeature }: AnimesProps) {
     const [animes, setAnimes] = useState<Anime[]>([]);
+    const [currentAnimeIndex, setCurrentAnimeIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -27,51 +27,85 @@ function Animes({ showFeature }: AnimesProps) {
     }, []);
 
     const scroll = (direction: 'left' | 'right') => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollBy({
-                left: direction === 'left' ? -300 : 300,
-                behavior: 'smooth',
-            });
-        }
+        setCurrentAnimeIndex((prevIndex) => {
+            const limitedAnimes = animes.slice(0, 10); // Limit to first 10 animes
+            if (direction === 'left') {
+                return prevIndex === 0 ? limitedAnimes.length - 1 : prevIndex - 1;
+            } else {
+                return prevIndex === limitedAnimes.length - 1 ? 0 : prevIndex + 1;
+            }
+        });
     };
+
+    const limitedAnimes = animes.slice(0, 10); // Limit to first 10 animes
+    const currentAnime = limitedAnimes[currentAnimeIndex];
 
     return (
         <>
-            {showFeature && (
+            {showFeature && limitedAnimes.length > 0 && (
                 <>
-                <div className="flex flex-col mb-12 w-full">
-                </div>
-                <div className="flex justify-center items-center mb-12 w-full">
-                    <div className="relative w-[975px] h-[555px]"> 
-                    <button
-                        onClick={() => scroll('left')}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-custom-dark text-white p-2 rounded-full z-10">
-                        &lt;
-                    </button>
-                    
-                            <Image
-                                src={codegeassImage}
-                                alt="Code Geass"
-                                fill
-                                sizes="(max-width: 975px) 100vw, 975px"
-                                style={{ objectFit: "cover" }}
-                                className="absolute inset-0"
-                                priority={true}
-                            />
-                            <div className="absolute inset-0 flex flex-col justify-end items-start p-8 text-white bg-gradient-to-r from-darkBlue via-transparent to-transparent">
-                                <span className="bg-custom-blue-dark px-2 py-1 rounded text-sm mb-2">Adventure</span>
-                                <h1 className="text-4xl mb-4 font-bold text-left text-stroke">Code Geass</h1>
-                                <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                                    WATCH NOW
+                    <div className="flex flex-col mb-12 w-full"></div>
+                    <div className="flex justify-center items-center mb-12 w-full">
+                        <div className="relative w-[975px] h-[555px]">
+                            <div ref={scrollRef} key={currentAnime.id}>
+                                <button
+                                    onClick={() => scroll('left')}
+                                    className="custom-button bg-custom-dark absolute z-10 left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        className="w-5 h-5 z-10 text-white"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+
+                                <Image
+                                    src={currentAnime.image_url}
+                                    alt={currentAnime.title}
+                                    fill
+                                    sizes="(max-width: 975px) 100vw, 975px"
+                                    style={{ objectFit: 'cover' }}
+                                    className="absolute inset-0"
+                                    priority={true}
+                                />
+                                <div className="absolute inset-0 flex flex-col justify-end items-start p-8 text-white bg-gradient-to-r from-darkBlue via-transparent to-transparent">
+                                    <div className="flex flex-wrap space-x-2">
+                                        {currentAnime.genre.slice(0,5).map((genre, index) => (
+                                            <span
+                                            key={index}
+                                            className="bg-custom-blue-dark px-2 py-1 rounded text-sm mb-2"
+                                            >
+                                            {genre}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <h1 className="text-4xl mb-4 font-bold text-left text-stroke">{currentAnime.title}</h1>
+                                    <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                                        <Link href={`/AnimesPage/${currentAnime.id}`}>WATCH NOW</Link>
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => scroll('right')}
+                                    className="custom-button bg-custom-dark absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        className="w-5 h-5 text-white"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </button>
                             </div>
-                        <button
-                            onClick={() => scroll('right')}
-                            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-custom-dark text-white p-2 rounded-full z-10">
-                            &gt;
-                        </button>
+                        </div>
                     </div>
-                </div>
                 </>
             )}
 
