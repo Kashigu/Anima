@@ -19,3 +19,12 @@ export interface Episode {
   episodeNumber: string;
   thumbnail_url: string;
 }
+
+export interface User {
+  _id: mongoose.Schema.Types.ObjectId;
+  id: string;
+  email: string;
+  password: string;
+  image_url: string;
+  isAdmin: boolean;
+}
