@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const EpisodeSchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   id: { type: String, required: true },
   idAnime: { type: String, required: true },
   title: { type: String, required: true },
