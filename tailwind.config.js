@@ -21,14 +21,6 @@ module.exports = {
         'custom-button': '0px 4px 12px rgba(0, 0, 0, 0.3)', // Custom shadow for your button
       },
     },
-    toast: {
-      default: {
-        backgroundColor: '#070720',
-        color: '#ffffff',
-        fontWeight: 'bold',
-        border: '1px solid #ffffff',
-      },
-    },
   },
   plugins: [
     function({ addUtilities }) {

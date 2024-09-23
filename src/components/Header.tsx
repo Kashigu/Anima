@@ -30,8 +30,12 @@ function Header() {
   const handleRegisterSubmit = async () => {
     if (formData.password !== formData.confirmationPassword) {
       toast.error('Passwords do not match!',{
-        className: ' bg-custom-dark',
-      });
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+      }});
       return;
     }
 
@@ -50,19 +54,32 @@ function Header() {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success('Registration successful!');
+        toast.success('Registration successful!',{
+          style: {
+            backgroundColor: '#070720',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            border: '1px solid #ffffff',
+        }});
         setRegister(false); // Close modal after successful registration
       } else {
-        toast.error('Error during registration!', {
-          className: 'toastDefault',
-        });
-        
+        toast.error('Error during registration!',{
+          style: {
+            backgroundColor: '#070720',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            border: '1px solid #ffffff',
+        }});
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error during registration!',{
-        className: ' bg-custom-dark',
-      });
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+      }});
     }
   };
 
