@@ -1,6 +1,6 @@
 import connectToDatabase from '@/lib/db';
 import UserModel from '@/lib/models/UserModel';
-import CounterUserModel from '@/lib/models/CounterUserModel'; // Import the CounterModel
+import CounterUserModel from '@/lib/models/CounterUserModel'; // Import the CounterUserModel
 import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 

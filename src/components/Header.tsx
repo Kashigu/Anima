@@ -1,20 +1,75 @@
-// src/components/Header.tsx
-"use client"; // This is important for client-side functionality
+"use client"; 
 
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
-import { faUser } from '@fortawesome/free-solid-svg-icons'; // Import specific icons
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faUser } from '@fortawesome/free-solid-svg-icons'; 
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import toast,{ Toaster } from 'react-hot-toast';
 
 function Header() {
 
   const [isLogin, setLogin] = useState(false);
   const [isRegister, setRegister] = useState(false);
 
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmationPassword: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [id]: value
+    }));
+  };
+
+  const handleRegisterSubmit = async () => {
+    if (formData.password !== formData.confirmationPassword) {
+      toast.error('Passwords do not match!',{
+        className: ' bg-custom-dark',
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/userServer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Registration successful!');
+        setRegister(false); // Close modal after successful registration
+      } else {
+        toast.error('Error during registration!', {
+          className: 'toastDefault',
+        });
+        
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error during registration!',{
+        className: ' bg-custom-dark',
+      });
+    }
+  };
+
 
   return (
     <>
+    <Toaster />
     <header className="bg-custom-dark flex justify-between items-center px-6 py-4">
       <div className="text-3xl text-white font-bold">
         <Link href="/">
@@ -132,6 +187,8 @@ function Header() {
               type="text"
               placeholder="Username"
               className="bg-custom-dark w-full outline-none"
+              value={formData.username}
+              onChange={handleInputChange}
             />
           </div>
         
@@ -142,6 +199,8 @@ function Header() {
               type="email"
               placeholder="Email"
               className="bg-custom-dark w-full outline-none"
+              value={formData.email}
+              onChange={handleInputChange}
             />
           </div>
       
@@ -152,6 +211,8 @@ function Header() {
               type="password"
               placeholder="Password"
               className="bg-custom-dark w-full outline-none"
+              value={formData.password}
+              onChange={handleInputChange}
             />
           </div>
           {/* Confirmation Password Input */}
@@ -161,6 +222,8 @@ function Header() {
               type="password"
               placeholder="Confirmation Password"
               className="bg-custom-dark w-full outline-none"
+              value={formData.confirmationPassword}
+              onChange={handleInputChange}
             />
           </div>
       
@@ -177,10 +240,11 @@ function Header() {
             </div>
           </div>
       
-          {/* Login Button */}
+          {/* Register Button */}
           <div className="flex justify-center">
             <button
               className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
+              onClick={handleRegisterSubmit}
             >
               Register
             </button>
