@@ -5,7 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 
 
-// Function to get the next auto-increment id
+
 async function getNextSequence(name: string) {
   const counter = await CounterUserModel.findOneAndUpdate(
     { _id: name },
