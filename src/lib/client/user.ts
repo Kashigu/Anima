@@ -11,9 +11,10 @@ async function getUser() {
   }
 }
 
+// Register user
 async function postUser(data: any) {
   try {
-    const response = await axiosClient.post('api/userServer', data);
+    const response = await axiosClient.post('api/userServer', {data , action: 'signup'});
     return response.data;
   } catch (error) {
     console.error('Failed to post user:', error);
@@ -21,4 +22,21 @@ async function postUser(data: any) {
   }
 }
 
-export { getUser , postUser};
+// Login user
+async function signIn(email: string, password: string) {
+  try {
+    const response = await axiosClient.post('api/userServer', {
+      data: {           
+        email,
+        password
+      },
+      action: 'signin',
+    });
+    return response.data;  // Token is returned here
+  } catch (error) {
+    console.error('Failed to sign in:', error);
+    return null;
+  }
+}
+
+export { getUser , postUser, signIn};

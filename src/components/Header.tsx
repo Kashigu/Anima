@@ -1,17 +1,16 @@
 "use client"; 
 
-import React, { useState } from 'react';
+import React, { act, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faUser } from '@fortawesome/free-solid-svg-icons'; 
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import toast,{ Toaster } from 'react-hot-toast';
+import { postUser , signIn} from '@/lib/client/user';
 
 function Header() {
-
   const [isLogin, setLogin] = useState(false);
   const [isRegister, setRegister] = useState(false);
-
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -29,60 +28,88 @@ function Header() {
 
   const handleRegisterSubmit = async () => {
     if (formData.password !== formData.confirmationPassword) {
-      toast.error('Passwords do not match!',{
+      toast.error('Passwords do not match!', {
         style: {
           backgroundColor: '#070720',
           color: '#ffffff',
           fontWeight: 'bold',
           border: '1px solid #ffffff',
-      }});
+        },
+      });
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/userServer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.username,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const response = await postUser({
+        name: formData.username,
+        email: formData.email,
+        password: formData.password,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        toast.success('Registration successful!',{
+      if (response) {
+        toast.success('Registration successful!', {
           style: {
             backgroundColor: '#070720',
             color: '#ffffff',
             fontWeight: 'bold',
             border: '1px solid #ffffff',
-        }});
+          },
+        });
         setRegister(false); // Close modal after successful registration
       } else {
-        toast.error('Error during registration!',{
+        toast.error('Error during registration!', {
           style: {
             backgroundColor: '#070720',
             color: '#ffffff',
             fontWeight: 'bold',
             border: '1px solid #ffffff',
-        }});
+          },
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error during registration!',{
+      toast.error('Error during registration!', {
         style: {
           backgroundColor: '#070720',
           color: '#ffffff',
           fontWeight: 'bold',
           border: '1px solid #ffffff',
-      }});
+        },
+      });
     }
   };
 
+  const handleLoginSubmit = async () => {
+    try {
+      const response = await signIn(formData.email, formData.password); // Change to formData.email
+      if (response && response.token) {
+        localStorage.setItem('jwtToken', response.token); // Store the token
+        toast.success('Login successful!', {
+          style: {
+            backgroundColor: '#070720',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            border: '1px solid #ffffff',
+          },
+        });
+       
+        setLogin(false); // Close modal after successful login
+      } else {
+        throw new Error('No token received');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Login failed! Please check your credentials.', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+    }
+  };
+  
 
   return (
     <>
@@ -133,13 +160,15 @@ function Header() {
             Login
           </div>
       
-          {/* Username Input */}
+          {/* Email Input */}
           <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
-              id="username"
+              id="email"
               type="text"
-              placeholder="Username"
+              placeholder="Email"
               className="bg-custom-dark w-full outline-none"
+              value={formData.email}
+              onChange={handleInputChange}
             />
           </div>
       
@@ -150,6 +179,8 @@ function Header() {
               type="password"
               placeholder="Password"
               className="bg-custom-dark w-full outline-none"
+              value={formData.password}
+              onChange={handleInputChange}
             />
           </div>
       
@@ -170,6 +201,7 @@ function Header() {
           <div className="flex justify-center">
             <button
               className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
+              onClick={handleLoginSubmit}
             >
               Login
             </button>
