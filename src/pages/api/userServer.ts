@@ -50,7 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     } else if (action === 'signin') {
       // Handle login logic
       try {
-        console.log('Incoming request body:', req.body);
+        
         const { email, password } = data; // Use data.email and data.password
         console.log(data);
 
