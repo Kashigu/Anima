@@ -39,7 +39,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           email: data.email, // Use data.email
           password: hashedPassword,
           isAdmin: false,
-          image_url: 'images/user.jpg'
+          image_url: 'images/user.png'
         });
 
         return res.status(201).json(newUser);
@@ -73,7 +73,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           { expiresIn: '1h' }
         );
 
-        return res.status(200).json({ token });
+        return res.status(200).json({
+          token,
+          user: {
+            email: user.email,
+            name: user.name,
+            isAdmin: user.isAdmin,
+            image_url: user.image_url,
+          },
+        });
+
       } catch (err) {
         console.error('Error during sign-in:', err);
         return res.status(500).json({ error: 'Internal Server Error' });

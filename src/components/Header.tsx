@@ -1,12 +1,13 @@
 "use client"; 
 
-import React, { act, useState } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faUser } from '@fortawesome/free-solid-svg-icons'; 
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faUser ,faSearch } from '@fortawesome/free-solid-svg-icons'; 
 import Link from 'next/link';
 import toast,{ Toaster } from 'react-hot-toast';
 import { postUser , signIn} from '@/lib/client/user';
+import { User } from '@/lib/interfaces/interface';
+
 
 function Header() {
   const [isLogin, setLogin] = useState(false);
@@ -17,6 +18,7 @@ function Header() {
     password: '',
     confirmationPassword: ''
   });
+  const [userData, setUserData] = useState<User | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -84,6 +86,7 @@ function Header() {
       const response = await signIn(formData.email, formData.password); // Change to formData.email
       if (response && response.token) {
         localStorage.setItem('jwtToken', response.token); // Store the token
+        setUserData(response.user as User); // Store user data
         toast.success('Login successful!', {
           style: {
             backgroundColor: '#070720',
@@ -135,10 +138,18 @@ function Header() {
         <button className="text-white hover:text-gray-400">
           <FontAwesomeIcon icon={faSearch} />
         </button>
-        <button className="text-white hover:text-gray-400" onClick={() => setLogin(true)}>
-          <FontAwesomeIcon icon={faUser} />
-          
-        </button>
+        {userData ? (  // Change `user` to `userData`
+        <img
+          src={userData.image_url} // Use image_url from user data
+          alt="User Avatar"
+          className="h-10 w-10 rounded-full cursor-pointer" // Adjust size and styles as needed
+          onClick={() => console.log("Profile clicked")} // Optional: add functionality
+        />
+        ) : (
+          <button className="text-white hover:text-gray-400" onClick={() => setLogin(true)}>
+            <FontAwesomeIcon icon={faUser} />
+          </button>
+        )}
       </div>
     </header>
 
