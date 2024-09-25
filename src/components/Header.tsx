@@ -1,12 +1,14 @@
 "use client"; 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faUser ,faSearch } from '@fortawesome/free-solid-svg-icons'; 
 import Link from 'next/link';
 import toast,{ Toaster } from 'react-hot-toast';
 import { postUser , signIn} from '@/lib/client/user';
 import { User } from '@/lib/interfaces/interface';
+import userAuth from '@/app/hooks/useAuth'; 
+import Cookies from 'js-cookie';
 
 
 function Header() {
@@ -83,22 +85,41 @@ function Header() {
 
   const handleLoginSubmit = async () => {
     try {
-      const response = await signIn(formData.email, formData.password); // Change to formData.email
-      if (response && response.token) {
-        localStorage.setItem('jwtToken', response.token); // Store the token
-        setUserData(response.user as User); // Store user data
-        toast.success('Login successful!', {
-          style: {
-            backgroundColor: '#070720',
-            color: '#ffffff',
-            fontWeight: 'bold',
-            border: '1px solid #ffffff',
-          },
-        });
-       
-        setLogin(false); // Close modal after successful login
+      const response = await signIn(formData.email, formData.password);
+      
+  
+      if (response) {
+        const { token, user } = response; // Get both the token and user data
+  
+        if (token) { // Ensure the token exists before setting it
+          localStorage.setItem('jwtToken', token); // Store the token in localStorage
+          Cookies.set('authToken', token, { expires: 7, path: '/', sameSite: 'lax' });
+          
+  
+          setUserData(user); // Store user data
+          toast.success('Login successful!', {
+            style: {
+              backgroundColor: '#070720',
+              color: '#ffffff',
+              fontWeight: 'bold',
+              border: '1px solid #ffffff',
+            },
+          });
+          
+          setLogin(false); // Close modal after successful login
+        } else {
+          console.error('No token received.');
+          toast.error('Login failed! No token received.', {
+            style: {
+              backgroundColor: '#070720',
+              color: '#ffffff',
+              fontWeight: 'bold',
+              border: '1px solid #ffffff',
+            },
+          });
+        }
       } else {
-        throw new Error('No token received');
+        throw new Error('No response received');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -112,6 +133,9 @@ function Header() {
       });
     }
   };
+  
+  
+  userAuth(setUserData); // Call userAuth to check authentication status
   
 
   return (

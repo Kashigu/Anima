@@ -28,3 +28,9 @@ export interface User {
   image_url: string;
   isAdmin: boolean;
 }
+
+export interface JWT{
+  id: string;
+  email: string;
+  isAdmin: boolean;
+}

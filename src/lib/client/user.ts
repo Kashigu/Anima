@@ -1,5 +1,6 @@
 
 import axiosClient from "../axiosClient";
+import Cookies from 'js-cookie';
 
 async function getUser() {
   try {
@@ -39,4 +40,26 @@ async function signIn(email: string, password: string) {
   }
 }
 
-export { getUser , postUser, signIn};
+// Get user with token
+async function getUserWithToken(token: string) {
+  
+  if (!token) {
+    console.error('No token found');
+    return null;
+  }
+
+  try {
+    const response = await axiosClient.get('api/userServer', {
+      headers: {
+        'Authorization': `Bearer ${token}`, // Send token in headers
+      },
+    });
+    return response.data; // Return the user data
+  } catch (error) {
+    console.error('Failed to fetch user:', (error as any).response ? (error as any).response.data : (error as any).message);
+    return null;
+  }
+}
+
+
+export { getUser , postUser, signIn, getUserWithToken};
