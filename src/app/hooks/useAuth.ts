@@ -21,7 +21,7 @@ const useAuth = (setUserData :SetUserDataFunction) => {
         };
         fetchData();
       } else {
-        console.log('User is not authenticated');
+        
         setUserData(null); // Clear user data if not authenticated
       }
     }

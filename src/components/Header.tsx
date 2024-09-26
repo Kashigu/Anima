@@ -14,6 +14,7 @@ import Cookies from 'js-cookie';
 function Header() {
   const [isLogin, setLogin] = useState(false);
   const [isRegister, setRegister] = useState(false);
+  const [isLogoutModal, setLogout] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -21,6 +22,7 @@ function Header() {
     confirmationPassword: ''
   });
   const [userData, setUserData] = useState<User | null>(null);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -133,6 +135,21 @@ function Header() {
       });
     }
   };
+
+  const handleLogoutSubmit = () => {
+    localStorage.removeItem('jwtToken'); // Remove token from localStorage
+    Cookies.remove('authToken'); // Remove token from cookies
+    setUserData(null); // Clear user data
+    setLogout(false); // Close modal after successful logout
+    toast.success('Logout successful!', {
+      style: {
+        backgroundColor: '#070720',
+        color: '#ffffff',
+        fontWeight: 'bold',
+        border: '1px solid #ffffff',
+      },
+    });
+  };
   
   
   userAuth(setUserData); // Call userAuth to check authentication status
@@ -147,28 +164,43 @@ function Header() {
           Ani<span className="text-red-500">ma</span>
         </Link>
       </div>
-      <nav className="text-white font-bold space-x-8">
-        <Link href="/" className="hover:text-gray-400">
+      <nav className="text-white font-bold space-x-12">
+        <Link href="/" className="hover:text-red-500">
           Homepage
         </Link>
-        <Link href="/Animes" className="hover:text-gray-400">
+        <Link href="/Animes" className="hover:text-red-500">
           Animes
         </Link>
-        <Link href="/Episodes" className="hover:text-gray-400">
+        <Link href="/Episodes" className="hover:text-red-500">
           Episodes
         </Link>
       </nav>
-      <div className="space-x-4">
-        <button className="text-white hover:text-gray-400">
+      <div className="space-x-12 flex  ">
+        <button className="text-white hover:text-red-500">
           <FontAwesomeIcon icon={faSearch} />
         </button>
         {userData ? (  // Change `user` to `userData`
+        <>
         <img
           src={userData.image_url} // Use image_url from user data
           alt="User Avatar"
           className="h-10 w-10 rounded-full cursor-pointer" // Adjust size and styles as needed
-          onClick={() => console.log("Profile clicked")} // Optional: add functionality
+          onClick={() => setDropdownOpen(!isDropdownOpen)} // Toggle dropdown on click
         />
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-14 w-48 bg-custom-dark rounded-md shadow-lg py-2 z-50">
+              <a href="/profile" className="block px-4 py-2  text-white hover:bg-red-500">
+                Profile
+              </a>
+              <a href="/settings" className="block px-4 py-2 text-white hover:bg-red-500">
+                Settings
+              </a>
+              <a onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">
+                Logout
+              </a>
+            </div>
+          )}
+        </>
         ) : (
           <button className="text-white hover:text-gray-400" onClick={() => setLogin(true)}>
             <FontAwesomeIcon icon={faUser} />
@@ -220,7 +252,7 @@ function Header() {
           </div>
       
           {/* Forgot Password & Register */}
-          <div className="flex justify-between">
+          <div className="flex mb-5 justify-between">
             <div>
               <p>Forgot Password ?</p>
             </div>
@@ -239,6 +271,45 @@ function Header() {
               onClick={handleLoginSubmit}
             >
               Login
+            </button>
+          </div>
+      </div>
+    </div>
+    
+    ) : null}
+
+    {/* Logout Modal */}
+    {isLogoutModal === true ? (
+      <div className="w-screen h-screen bg-custom-dark bg-opacity-50 z-50 fixed top-0 left-0 flex">
+      {/* Modal container */}
+        <div className="bg-custom-blue-dark relative rounded-2xl text-white shadow-lg shadow-[#7887dd] xl:w-4/12 lg:w-6/12 md:w-8/12 w-10/12 p-8 mx-auto my-auto flex flex-col">
+          
+          {/* Close button */}
+          <div
+            className="absolute top-4 right-4 cursor-pointer text-4xl"
+            onClick={() => setLogout(false)}
+          >
+            &times;
+          </div>
+          
+          <div className="text-3xl font-bold  mx-auto mb-6">
+            Logout
+          </div>   
+
+          {/* Logout */}
+          <div className="flex  mb-5 text-2xl justify-center">
+            <div>
+              <p>Are you sure you want to Logout ?</p>
+            </div>
+          </div>
+      
+          {/* Logout Button */}
+          <div className="flex justify-center ">
+            <button
+              className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
+              onClick={handleLogoutSubmit}
+            >
+              Logout
             </button>
           </div>
       </div>
@@ -312,7 +383,7 @@ function Header() {
           </div>
       
           {/* Forgot Password & Register */}
-          <div className="flex justify-between">
+          <div className="flex mb-5 justify-between">
             <div>
               <p></p>
             </div>
