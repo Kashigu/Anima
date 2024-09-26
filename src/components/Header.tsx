@@ -195,14 +195,14 @@ function Header() {
               <a href="/settings" className="block px-4 py-2 text-white hover:bg-red-500">
                 Settings
               </a>
-              <a onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">
+              <a href='#' onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">
                 Logout
               </a>
             </div>
           )}
         </>
         ) : (
-          <button className="text-white hover:text-gray-400" onClick={() => setLogin(true)}>
+          <button className="text-white hover:text-red-500" onClick={() => setLogin(true)}>
             <FontAwesomeIcon icon={faUser} />
           </button>
         )}
