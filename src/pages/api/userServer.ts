@@ -59,7 +59,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           email: data.email,
           password: hashedPassword,
           isAdmin: false,
-          image_url: 'images/user.png',
+          image_url: 'images/whiteuser.png',
         });
 
         return res.status(201).json(newUser);
