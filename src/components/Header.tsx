@@ -159,6 +159,7 @@ function Header() {
     <>
     <Toaster />
     <header className="bg-custom-dark flex justify-between items-center px-6 py-4">
+      
       <div className="text-3xl text-white font-bold">
         <Link href="/">
           Ani<span className="text-red-500">ma</span>
@@ -179,13 +180,13 @@ function Header() {
         <button className="text-white hover:text-red-500">
           <FontAwesomeIcon icon={faSearch} />
         </button>
-        {userData ? (  // Change `user` to `userData`
+        {userData ? ( 
         <>
         <img
-          src={userData.image_url} // Use image_url from user data
+          src={userData.image_url} 
           alt="User Avatar"
-          className="h-10 w-10 rounded-full cursor-pointer" // Adjust size and styles as needed
-          onClick={() => setDropdownOpen(!isDropdownOpen)} // Toggle dropdown on click
+          className="h-10 w-10 rounded-full cursor-pointer" 
+          onClick={() => setDropdownOpen(!isDropdownOpen)} 
         />
           {isDropdownOpen && (
             <div className="absolute right-0 mt-14 w-48 bg-custom-dark rounded-md shadow-lg py-2 z-50">
