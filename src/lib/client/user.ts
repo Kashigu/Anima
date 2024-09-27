@@ -62,4 +62,15 @@ async function getUserWithToken(token: string) {
 }
 
 
-export { getUser , postUser, signIn, getUserWithToken};
+// Get user by id
+async function getUserById(id: string) {
+  try {
+    const response = await axiosClient.get(`api/userServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user by id:', error);
+    return null;
+  }
+}
+
+export { getUser , postUser, signIn, getUserWithToken , getUserById};
