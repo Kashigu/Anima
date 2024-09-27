@@ -1,6 +1,5 @@
 
 import axiosClient from "../axiosClient";
-import Cookies from 'js-cookie';
 
 async function getUser() {
   try {
@@ -65,7 +64,7 @@ async function getUserWithToken(token: string) {
 // Get user by id
 async function getUserById(id: string) {
   try {
-    const response = await axiosClient.get(`api/userServer?id=${id}`);
+    const response = await axiosClient.get(`api/userServer?userId=${id}`);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch user by id:', error);
