@@ -183,7 +183,7 @@ function Header() {
         {userData ? ( 
         <>
         <img
-          src={userData.image_url} 
+          src={`/${userData?.image_url}`}
           alt="User Avatar"
           className="h-10 w-10 rounded-full cursor-pointer" 
           onClick={() => setDropdownOpen(!isDropdownOpen)} 
