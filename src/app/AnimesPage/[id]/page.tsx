@@ -1,8 +1,6 @@
 import AnimesPage from '@/components/animePage/AnimesPage';
 import { getAnimeById } from '@/lib/client/animesClient';
-import mongoose from 'mongoose';
 import '../../../globals.css'; // Ensure this path is correct
-import Episodes from '@/components/Episodes';
 import { Anime } from '@/lib/interfaces/interface';
 
 async function fetchAnimeById(id: string): Promise<Anime | null> {
