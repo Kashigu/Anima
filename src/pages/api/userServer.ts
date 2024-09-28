@@ -124,6 +124,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(200).json({
           token,
           user: {
+            id: user.id,
             email: user.email,
             name: user.name,
             isAdmin: user.isAdmin,

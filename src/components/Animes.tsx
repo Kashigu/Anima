@@ -44,7 +44,7 @@ function Animes({ showFeature }: AnimesProps) {
         <>
             {showFeature && limitedAnimes.length > 0 && (
                 <>
-                    <div className="flex flex-col mb-12 w-full"></div>
+                    <div className="flex flex-col mb-12 w-full "></div>
                     <div className="flex justify-center items-center w-full">
                         <div className="relative w-[975px] h-[555px]">
                             <div ref={scrollRef} key={currentAnime.id}>
@@ -109,7 +109,7 @@ function Animes({ showFeature }: AnimesProps) {
                 </>
             )}
 
-            <div className="container mx-auto bg-custom-blue-dark">
+            <div className="container mx-auto h-screen bg-custom-blue-dark">
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                     <p></p>
                 </div>

@@ -4,6 +4,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import ErrorBoundary from "../components/ErrorBoundaries";
 import "../globals.css"; 
+import { height } from "@fortawesome/free-solid-svg-icons/fa0";
 
 export const metadata = {
   title: "Anima",
@@ -18,10 +19,10 @@ export default function RootLayout({
       <Head>
         <title>Anima</title>
       </Head>
-      <body>
+      <body style={{ height: 'auto' }}>
         <Header />
         <ErrorBoundary>
-          <main>{children}</main>
+          <main className="bg-custom-blue-dark">{children}</main>
         </ErrorBoundary>
       </body>
     </html>

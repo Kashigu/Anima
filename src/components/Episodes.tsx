@@ -22,7 +22,7 @@ function Episodes() {
 
     return (
         <>
-            <div className="container mx-auto bg-custom-blue-dark">
+            <div className="container mx-auto h-screen bg-custom-blue-dark">
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                     <p></p>
                 </div>

@@ -23,6 +23,7 @@ export interface Episode {
 export interface User {
   _id: mongoose.Schema.Types.ObjectId;
   id: string;
+  name: string;
   email: string;
   password: string;
   image_url: string;
