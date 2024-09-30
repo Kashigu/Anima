@@ -15,7 +15,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-custom-blue-dark">
       <Head>
         <title>Anima</title>
       </Head>

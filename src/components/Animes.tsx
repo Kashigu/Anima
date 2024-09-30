@@ -113,7 +113,7 @@ function Animes({ showFeature }: AnimesProps) {
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                     <p></p>
                 </div>
-                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
+                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto  pl-2 bg-custom-dark pb-2 ">
                     Latest Releases
                 </div>
                 <div className="grid grid-cols-4 gap-x-8 gap-y-4 bg-custom-blue-dark">

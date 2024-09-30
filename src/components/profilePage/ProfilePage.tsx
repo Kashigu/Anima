@@ -39,7 +39,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col container mx-auto text-center w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+      <div className="flex flex-col container mx-auto  w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
         Status
       </div>
 
