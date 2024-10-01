@@ -1,10 +1,22 @@
+"use client";
 import { User } from "@/lib/interfaces/interface";
+import { useState } from "react";
 
 interface UserPageProps {
   userId: User | null;
 }
 
 const ProfilePage = ({ userId }: UserPageProps) => {
+
+  const loggedUser = JSON.parse(sessionStorage.getItem('user') || '{}'); // Parse the logged user object
+  //Check if the user is the same as the logged user
+  const isUser =
+    userId?.id === loggedUser.id &&
+    userId?.email === loggedUser.email &&
+    userId?.name === loggedUser.name &&
+    userId?.image_url === loggedUser.image_url &&
+    userId?.isAdmin === loggedUser.isAdmin; // Check if all properties match
+
   if (userId === null || userId.id === null) {
     return (
       <div className="bg-custom-blue-dark h-screen flex justify-center pt-5">
@@ -14,6 +26,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
       </div>
     );
   }
+ 
 
   return (
     <div className="bg-custom-blue-dark h-screen flex flex-col w-full">
@@ -38,11 +51,9 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           </div>
         </div>
       </div>
-
-      <div className="flex flex-col container mx-auto  w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+      <div className="flex flex-col container mx-auto w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
         Status
       </div>
-
       {/* Grid Layout for stats */}
       <div className="container text-xl flex justify-center items-center mx-auto">
         <div className="grid grid-cols-2 gap-x-24 gap-y-4 text-white">

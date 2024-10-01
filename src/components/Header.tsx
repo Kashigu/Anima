@@ -9,6 +9,7 @@ import { postUser , signIn} from '@/lib/client/user';
 import { User } from '@/lib/interfaces/interface';
 import userAuth from '@/app/hooks/useAuth'; 
 import Cookies from 'js-cookie';
+import { Session } from 'inspector';
 
 
 function Header() {
@@ -107,6 +108,8 @@ function Header() {
               border: '1px solid #ffffff',
             },
           });
+
+          sessionStorage.setItem('user', JSON.stringify(user));
           
           setLogin(false); // Close modal after successful login
         } else {
@@ -193,7 +196,7 @@ function Header() {
               <a href = {`/Profile/${userData.id}`} className="block px-4 py-2  text-white hover:bg-red-500">
                 Profile
               </a>
-              <a href="/Settings" className="block px-4 py-2 text-white hover:bg-red-500">
+              <a href={`/Settings/${userData.id}`} className="block px-4 py-2 text-white hover:bg-red-500">
                 Settings
               </a>
               <a href='#' onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">
