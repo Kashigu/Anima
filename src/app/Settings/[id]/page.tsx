@@ -1,5 +1,5 @@
-import ProfilePage from '@/components/profilePage/ProfilePage';
-import '../../../globals.css';
+import SettingProfile from '@/components/settingPage/SettingPage';
+import '../../../globals.css'; 
 import { User } from '@/lib/interfaces/interface';
 import { getUserById } from '@/lib/client/user';
 
@@ -18,13 +18,13 @@ async function fetchUserById(id: string): Promise<User | null> {
   }
 
 
-async function Profile({ params }: { params: { id: string } }) {
+async function Setting({ params }: { params: { id: string } }) {
     const { id } = params;
     const userId = await fetchUserById(id);
     return (
       <>
       <div className=" bg-custom-blue-dark">
-        <ProfilePage userId={userId} />
+        <SettingProfile userId={userId} />
       </div>
       </>
       
@@ -33,4 +33,4 @@ async function Profile({ params }: { params: { id: string } }) {
     
   }
 
-  export default Profile;
+  export default Setting;

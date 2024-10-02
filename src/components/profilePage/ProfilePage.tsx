@@ -1,21 +1,11 @@
 "use client";
 import { User } from "@/lib/interfaces/interface";
-import { useState } from "react";
 
 interface UserPageProps {
   userId: User | null;
 }
 
 const ProfilePage = ({ userId }: UserPageProps) => {
-
-  const loggedUser = JSON.parse(sessionStorage.getItem('user') || '{}'); // Parse the logged user object
-  //Check if the user is the same as the logged user
-  const isUser =
-    userId?.id === loggedUser.id &&
-    userId?.email === loggedUser.email &&
-    userId?.name === loggedUser.name &&
-    userId?.image_url === loggedUser.image_url &&
-    userId?.isAdmin === loggedUser.isAdmin; // Check if all properties match
 
   if (userId === null || userId.id === null) {
     return (
@@ -61,23 +51,23 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Completed:</span>
-              <span className="ml-24">359</span> {/* Increase margin-left */}
+              <span className="ml-24">359</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Watching:</span>
-              <span className="ml-24">9</span> {/* Increase margin-left */}
+              <span className="ml-24">9</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">On Hold:</span>
-              <span className="ml-24">0</span> {/* Increase margin-left */}
+              <span className="ml-24">0</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Dropped:</span>
-              <span className="ml-24">2</span> {/* Increase margin-left */}
+              <span className="ml-24">2</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Plan to Watch:</span>
-              <span className="ml-24">5</span> {/* Increase margin-left */}
+              <span className="ml-24">5</span> 
             </div>
           </div>
 
@@ -85,23 +75,23 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Total Entries:</span>
-              <span className="ml-24">412</span> {/* Increase margin-left */}
+              <span className="ml-24">412</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Rewatched:</span>
-              <span className="ml-24">0</span> {/* Increase margin-left */}
+              <span className="ml-24">0</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Episodes:</span>
-              <span className="ml-24">1114820</span> {/* Increase margin-left */}
+              <span className="ml-24">1114820</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Favourites:</span>
-              <span className="ml-24">5</span> {/* Increase margin-left */}
+              <span className="ml-24">5</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Likes:</span>
-              <span className="ml-24">5</span> {/* Increase margin-left */}
+              <span className="ml-24">5</span> 
             </div>
           </div>
         </div>
