@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faUser ,faSearch } from '@fortawesome/free-solid-svg-icons'; 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import toast,{ Toaster } from 'react-hot-toast';
 import { postUser , signIn} from '@/lib/client/user';
 import { User } from '@/lib/interfaces/interface';
@@ -24,6 +25,7 @@ function Header() {
   });
   const [userData, setUserData] = useState<User | null>(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -144,6 +146,7 @@ function Header() {
     Cookies.remove('authToken'); // Remove token from cookies
     setUserData(null); // Clear user data
     setLogout(false); // Close modal after successful logout
+    router.push('/');
     toast.success('Logout successful!', {
       style: {
         backgroundColor: '#070720',
@@ -196,7 +199,7 @@ function Header() {
               <a href = {`/Profile/${userData.id}`} className="block px-4 py-2  text-white hover:bg-red-500">
                 Profile
               </a>
-              <a href={`/Settings/${userData.id}`} className="block px-4 py-2 text-white hover:bg-red-500">
+              <a href={`/Settings`} className="block px-4 py-2 text-white hover:bg-red-500">
                 Settings
               </a>
               <a href='#' onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">

@@ -1,36 +1,42 @@
 "use client";
-import { User } from "@/lib/interfaces/interface";
+import useUser from "@/app/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface UserPageProps {
-  userId: User | null;
-}
 
-const SettingPage = ({ userId }: UserPageProps) => {
-  const loggedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
-  const isUser =
-    userId?.id === loggedUser.id &&
-    userId?.email === loggedUser.email &&
-    userId?.name === loggedUser.name &&
-    userId?.image_url === loggedUser.image_url &&
-    userId?.isAdmin === loggedUser.isAdmin;
-
+const SettingPage = () => {
+  const { userData, loading } = useUser();
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: userId?.name || '',
-    email: userId?.email || '',
-    image: null as File | null, // Store image file
+    name: "",
+    email: "",
+    image: null as File | null,
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    description: "",
   });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // For image preview
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Update formData whenever userData changes
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        name: userData.name || "",
+        email: userData.email || "",
+        image: null, // Reset image when fetching new user data
+        password: '',
+        confirmPassword: '',
+        description: userData.description || "",
+      });
+    }
+  }, [userData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -55,25 +61,13 @@ const SettingPage = ({ userId }: UserPageProps) => {
     console.log(formData);
   };
 
-  if (isUser === false) {
-    const router = useRouter();
 
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        router.push("/");
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }, [router]);
-
-    return (
-      <div className="bg-custom-blue-dark h-screen flex justify-center pt-5">
-        <div className="text-4xl text-white text-center font-bold">
-          Error 401: Unauthorized
-        </div>
-      </div>
-    );
-  }
+   // Redirect if user data is not available
+   useEffect(() => {
+    if (!loading && !userData) {
+      router.push("/"); 
+    }
+  }, [loading, userData, router]);
 
   return (
     <div className="bg-custom-blue-dark h-screen flex flex-col w-full">
@@ -128,6 +122,17 @@ const SettingPage = ({ userId }: UserPageProps) => {
               <img src={imagePreview} alt="Preview" className="w-full mt-4" />
             </div>
           )}
+
+          <div className="w-full max-w-md">
+            <label className="block mb-2 text-2xl">Description</label>
+            <input
+              type="text"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+            />
+          </div>
 
           <div className="w-full max-w-md">
             <label className="block mb-2 text-2xl">Password</label>

@@ -35,13 +35,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         if (!user) {
           return res.status(404).json({ error: 'User not found' });
         }
-  
         return res.status(200).json({
           id: user.id,
           email: user.email,
           name: user.name,
           isAdmin: user.isAdmin,
           image_url: user.image_url,
+          description: user.description,
         });
       } catch (error) {
         console.error('Error fetching user by userId:', error);
@@ -66,6 +66,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           name: user.name,
           isAdmin: user.isAdmin,
           image_url: user.image_url,
+          description: user.description,
         });
       } catch (error) {
         console.error('Error verifying token:', error);
@@ -87,6 +88,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           password: hashedPassword,
           isAdmin: false,
           image_url: 'images/whiteuser.png',
+          description: '',
         });
 
         return res.status(201).json(newUser);
@@ -129,6 +131,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             name: user.name,
             isAdmin: user.isAdmin,
             image_url: user.image_url,
+            description: user.description,
           },
         });
       } catch (err) {

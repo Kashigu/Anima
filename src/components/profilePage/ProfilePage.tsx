@@ -16,7 +16,6 @@ const ProfilePage = ({ userId }: UserPageProps) => {
       </div>
     );
   }
- 
 
   return (
     <div className="bg-custom-blue-dark h-screen flex flex-col w-full">
@@ -37,7 +36,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           {/* Description on the right */}
           <div className="flex flex-col max-w-lg text-lg">
             <h2 className="text-2xl mb-4 font-bold">Description</h2>
-            <p>If you are a nigger then I am not your friend</p>
+            <p>{userId.description}</p>
           </div>
         </div>
       </div>
