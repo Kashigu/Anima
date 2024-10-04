@@ -72,4 +72,16 @@ async function getUserById(id: string) {
   }
 }
 
-export { getUser , postUser, signIn, getUserWithToken , getUserById};
+// Update user
+async function updateUser(data: any) {
+  try {
+    const response = await axiosClient.put('api/userServer', {data});
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update user:', error);
+    return null;
+  }
+}
+
+export { getUser , postUser, signIn, getUserWithToken , getUserById, updateUser };

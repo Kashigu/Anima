@@ -1,7 +1,10 @@
 "use client";
+import useAuth from "@/app/hooks/useAuth";
 import useUser from "@/app/hooks/useUser";
+import { updateUser } from "@/lib/client/user";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 
 const SettingPage = () => {
@@ -10,7 +13,7 @@ const SettingPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    image: null as File | null,
+    image_url: null as File | null,
     password: '',
     confirmPassword: '',
     description: "",
@@ -24,7 +27,7 @@ const SettingPage = () => {
       setFormData({
         name: userData.name || "",
         email: userData.email || "",
-        image: null, // Reset image when fetching new user data
+        image_url: null,
         password: '',
         confirmPassword: '',
         description: userData.description || "",
@@ -51,17 +54,65 @@ const SettingPage = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error('Passwords do not match!', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
       return;
     }
-    // Perform form submission logic here
-    console.log(formData);
+    console.log (userData?.id);
+
+    try {
+      const response = await updateUser({
+        id: userData?.id,
+        name: formData.name,
+        email: formData.email,
+        description: formData.description,
+        image_url: formData.image_url === null ? userData?.image_url : formData.image_url,
+        password: formData.password === '' ? userData?.password : formData.password
+      });
+
+      if (response) {
+        toast.success('Changes successful!', {
+          style: {
+            backgroundColor: '#070720',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            border: '1px solid #ffffff',
+          },
+        });
+       
+
+      } else {
+        console.error('Error:', response);
+        toast.error('Error during Changes!', {
+          style: {
+            backgroundColor: '#070720',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            border: '1px solid #ffffff',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error during Changes!', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+    }
   };
-
-
    // Redirect if user data is not available
    useEffect(() => {
     if (!loading && !userData) {
