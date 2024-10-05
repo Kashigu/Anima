@@ -26,11 +26,11 @@ async function postUser(data: any) {
 async function signIn(email: string, password: string) {
   try {
     const response = await axiosClient.post('api/userServer', {
+      action: 'signin', // Move the action key outside the data object
       data: {           
         email,
         password
-      },
-      action: 'signin',
+      }
     });
     return response.data;  // Token is returned here
   } catch (error) {
@@ -73,10 +73,17 @@ async function getUserById(id: string) {
 }
 
 // Update user
-async function updateUser(data: any) {
+async function updateUser(data: FormData) {
   try {
-    const response = await axiosClient.put('api/userServer', {data});
-    console.log(response);
+    console.log('data do user.ts',data);
+    // Directly send FormData, don't wrap it in an object
+    const response = await axiosClient.put('api/userServer', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // This header is typically set by Axios automatically for FormData
+      },
+    });
+    
+    console.log('data do user.ts',response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to update user:', error);

@@ -5,8 +5,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
-import { JWT } from '@/lib/interfaces/interface'; // Make sure to import your JWT interface
+import { JWT } from '@/lib/interfaces/interface'; 
+import { runMiddleware } from '@/lib/runMiddleware';
+import multer from 'multer';
 
+// Function to get the next user sequence
 async function getNextSequence(name: string) {
   const counter = await CounterUserModel.findOneAndUpdate(
     { _id: name },
@@ -16,19 +19,30 @@ async function getNextSequence(name: string) {
   return counter.seq;
 }
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images'); // Adjust the path as necessary
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+  },
+});
+
+// Create the multer instance
+const upload = multer({ storage });
+
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
-    const { authToken } = req.cookies; // Extract the token from cookies
+    const { authToken } = req.cookies;
     const { userId } = req.query;
-  
-    // Check if neither authToken nor userId is provided
+
     if (!authToken && !userId) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-  
-    // If userId is provided, attempt to fetch user by userId
+
     if (userId) {
       try {
         const user = await UserModel.findOne({ id: userId });
@@ -48,18 +62,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(500).json({ error: 'Internal Server Error' });
       }
     }
-  
-    // If userId is not provided but authToken is available, fetch the authenticated user
+
     if (authToken) {
       try {
         const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey') as JWT;
-  
-        // Fetch user from the database using the token's ID
         const user = await UserModel.findOne({ id: decoded.id });
         if (!user) {
           return res.status(404).json({ error: 'User not found' });
         }
-  
+
         return res.status(200).json({
           id: user.id,
           email: user.email,
@@ -73,101 +84,103 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
     }
-    } else if (req.method === 'POST') {
-      const { action, data } = req.body;
+  } else if (req.method === 'POST') {
+    const { action, data } = req.body;
 
-      if (action === 'signup') {
-        try {
-          const nextId = await getNextSequence('userId');
-          const hashedPassword = await bcrypt.hash(data.password, 10);
-
-          const newUser = await UserModel.create({
-            id: nextId.toString(),
-            name: data.name,
-            email: data.email,
-            password: hashedPassword,
-            isAdmin: false,
-            image_url: 'images/whiteuser.png',
-            description: '',
-          });
-
-          return res.status(201).json(newUser);
-        } catch (err) {
-          console.error('Error creating user:', err);
-          return res.status(500).json({ error: 'Internal Server Error' });
-        }
-      } else if (action === 'signin') {
-        try {
-          const { email, password } = data;
-          const user = await UserModel.findOne({ email });
-          if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-          }
-
-          const isMatch = await bcrypt.compare(password, user.password);
-          if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-          }
-
-          const token = jwt.sign(
-            { id: user.id, email: user.email, isAdmin: user.isAdmin },
-            process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey',
-            { expiresIn: '1h' }
-          );
-
-          res.setHeader('Set-Cookie', cookie.serialize('authToken', token, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60,
-            path: '/',
-          }));
-
-          return res.status(200).json({
-            token,
-            user: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              isAdmin: user.isAdmin,
-              image_url: user.image_url,
-              description: user.description,
-            },
-          });
-        } catch (err) {
-          console.error('Error during sign-in:', err);
-          return res.status(500).json({ error: 'Internal Server Error' });
-        }
-      } 
-    } else if (req.method === 'PUT') {
+    if (action === 'signup') {
       try {
-        const { id, name, email, password, description, image_url } = req.body.data;
-      
-        console.log('Request body:', req.body);
-      
-        // Find the user by the string id
-        const updatedUser = await UserModel.findOneAndUpdate(
-          { id: id }, // Assuming `id` is a string field in your User schema
-          {
-            name,
-            email,
-            description,
-            image_url,
-            password: password ? await bcrypt.hash(password, 10) : undefined,
-          },
-          { new: true } // Return the updated document
-        );
-      
-        if (!updatedUser) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-      
-        return res.status(200).json(updatedUser); // Send back the updated user
+        const nextId = await getNextSequence('userId');
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+
+        const newUser = await UserModel.create({
+          id: nextId.toString(),
+          name: data.name,
+          email: data.email,
+          password: hashedPassword,
+          isAdmin: false,
+          image_url: 'images/whiteuser.png',
+          description: '',
+        });
+
+        return res.status(201).json(newUser);
       } catch (err) {
-        console.error('Error updating user:', err); // Log the error message
+        console.error('Error creating user:', err);
         return res.status(500).json({ error: 'Internal Server Error' });
       }
-    } else {
+    } else if (action === 'signin') {
+      try {
+        const { email, password } = data;
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign(
+          { id: user.id, email: user.email, isAdmin: user.isAdmin },
+          process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey',
+          { expiresIn: '1h' }
+        );
+
+        res.setHeader('Set-Cookie', cookie.serialize('authToken', token, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60,
+          path: '/',
+        }));
+
+        return res.status(200).json({
+          token,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            isAdmin: user.isAdmin,
+            image_url: user.image_url,
+            description: user.description,
+          },
+        });
+      } catch (err) {
+        console.error('Error during sign-in:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+  } else if (req.method === 'PUT') {
+    console.log('req.body:', req.body);
+
+    await runMiddleware(req, res, upload.single('image_url')); // Handle file upload
+
+    const { id, name, email, password, description } = req.body;
+    const image_url = req.file ? `/images/${req.file.filename}` : undefined; // Use uploaded file or keep old URL
+
+    try {
+      const updatedUser = await UserModel.findOneAndUpdate(
+        { id: id },
+        {
+          name,
+          email,
+          description,
+          image_url,
+          password: password ? await bcrypt.hash(password, 10) : undefined,
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.status(200).json(updatedUser); // Send back the updated user
+    } catch (err) {
+      console.error('Error updating user:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
     res.setHeader('Allow', ['GET', 'POST', 'PUT']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }

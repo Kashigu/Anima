@@ -48,7 +48,7 @@ const SettingPage = () => {
       const file = e.target.files[0];
       setFormData((prev) => ({
         ...prev,
-        image: file, // Store the file object
+        image_url: file, // Store the file object
       }));
       setImagePreview(URL.createObjectURL(file)); // Create a preview URL
     }
@@ -67,18 +67,23 @@ const SettingPage = () => {
       });
       return;
     }
-    console.log (userData?.id);
-
+    
+    const formDataToSend = new FormData();
+    if (userData?.id) {
+      formDataToSend.append("id", userData.id);
+    }
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("description", formData.description);
+    if (formData.image_url) {
+      formDataToSend.append("image_url", formData.image_url); // Use the file object directly
+    }else{
+      formDataToSend.append("image_url", userData?.image_url || ''); // Use the file object directly
+    }
+    formDataToSend.append("password", formData.password === '' ? userData?.password || '' : formData.password);
+    console.log('formDataToSend:', formDataToSend);
     try {
-      const response = await updateUser({
-        id: userData?.id,
-        name: formData.name,
-        email: formData.email,
-        description: formData.description,
-        image_url: formData.image_url === null ? userData?.image_url : formData.image_url,
-        password: formData.password === '' ? userData?.password : formData.password
-      });
-
+      const response = await updateUser(formDataToSend); // Ensure updateUser is adjusted to accept FormData
       if (response) {
         toast.success('Changes successful!', {
           style: {
@@ -88,8 +93,6 @@ const SettingPage = () => {
             border: '1px solid #ffffff',
           },
         });
-       
-
       } else {
         console.error('Error:', response);
         toast.error('Error during Changes!', {
@@ -160,7 +163,7 @@ const SettingPage = () => {
             <label className="block mb-2 text-2xl">Image Upload</label>
             <input
               type="file"
-              name="image"
+              name="image_url"
               onChange={handleFileChange}
               className="w-full px-4 py-2 bg-custom-dark text-white rounded"
               accept="image/*"
