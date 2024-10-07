@@ -6,8 +6,9 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import { JWT } from '@/lib/interfaces/interface'; 
-import { runMiddleware } from '@/lib/runMiddleware';
+import express from 'express';
 import multer from 'multer';
+import path from 'path';
 
 // Function to get the next user sequence
 async function getNextSequence(name: string) {
@@ -19,18 +20,19 @@ async function getNextSequence(name: string) {
   return counter.seq;
 }
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/images'); // Adjust the path as necessary
+    cb(null, path.join(process.cwd(), 'public/images')); // Change this to your public/images path
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
-// Create the multer instance
 const upload = multer({ storage });
+const app = express();
+
+app.use(express.json());
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
@@ -151,35 +153,42 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     }
   } else if (req.method === 'PUT') {
-    console.log('req.body:', req.body);
+    const uploadHandler = upload.single('image_url');
 
-    await runMiddleware(req, res, upload.single('image_url')); // Handle file upload
-
-    const { id, name, email, password, description } = req.body;
-    const image_url = req.file ? `/images/${req.file.filename}` : undefined; // Use uploaded file or keep old URL
-
-    try {
-      const updatedUser = await UserModel.findOneAndUpdate(
-        { id: id },
-        {
-          name,
-          email,
-          description,
-          image_url,
-          password: password ? await bcrypt.hash(password, 10) : undefined,
-        },
-        { new: true } // Return the updated document
-      );
-
-      if (!updatedUser) {
-        return res.status(404).json({ error: 'User not found' });
+    uploadHandler(req as any, res as any, async (err: any) => {
+      if (err) {
+        console.error('Error uploading image:', err);
+        return res.status(500).json({ error: 'Failed to upload image' });
       }
+      
+      const { id, name, email, password, description } = req.body;
+      const image_url = req.file
+        ? `images/${req.file.filename}` // If a new file is uploaded, use its path
+        : req.body.existing_image_url; // If no file is uploaded, use the existing image URL
 
-      return res.status(200).json(updatedUser); // Send back the updated user
-    } catch (err) {
-      console.error('Error updating user:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
+      try {
+        const updatedUser = await UserModel.findOneAndUpdate(
+          { id: id },
+          {
+            name,
+            email,
+            description,
+            ...(image_url && { image_url }), // Only add image_url if it exists
+            password: password ? await bcrypt.hash(password, 10) : undefined,
+          },
+          { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        return res.status(200).json(updatedUser); // Send back the updated user
+      } catch (err) {
+        console.error('Error updating user:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'PUT']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -187,3 +196,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default handler;
+// Disable Next.js's default body parser for this API route
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
-  image_url: { type: String, required: true },
+  image_url: { type: String, required: false },
   description: { type: String, required: false },
 }, { collection: 'users' });
 

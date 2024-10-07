@@ -76,9 +76,9 @@ const SettingPage = () => {
     formDataToSend.append("email", formData.email);
     formDataToSend.append("description", formData.description);
     if (formData.image_url) {
-      formDataToSend.append("image_url", formData.image_url); // Use the file object directly
-    }else{
-      formDataToSend.append("image_url", userData?.image_url || ''); // Use the file object directly
+      formDataToSend.append("image_url", formData.image_url);
+    } else if (userData?.image_url) {
+      formDataToSend.append("existing_image_url", userData.image_url);
     }
     formDataToSend.append("password", formData.password === '' ? userData?.password || '' : formData.password);
     console.log('formDataToSend:', formDataToSend);
@@ -129,9 +129,11 @@ const SettingPage = () => {
         Settings
       </div>
       <div className="container mx-auto">
-        <form
+        <form 
           onSubmit={handleSubmit}
           className="flex flex-col items-center gap-6 text-white"
+          method="PUT"
+          encType="multipart/form-data"
         >
           {/* Other input fields */}
           <div className="w-full max-w-md">

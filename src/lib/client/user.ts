@@ -75,15 +75,11 @@ async function getUserById(id: string) {
 // Update user
 async function updateUser(data: FormData) {
   try {
-    console.log('data do user.ts',data);
-    // Directly send FormData, don't wrap it in an object
     const response = await axiosClient.put('api/userServer', data, {
       headers: {
-        'Content-Type': 'multipart/form-data', // This header is typically set by Axios automatically for FormData
+        'Content-Type': 'multipart/form-data', 
       },
     });
-    
-    console.log('data do user.ts',response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to update user:', error);
