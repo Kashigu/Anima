@@ -20,9 +20,10 @@ async function getNextSequence(name: string) {
   return counter.seq;
 }
 
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'public/images')); // Change this to your public/images path
+    cb(null, path.join(process.cwd(), 'public/images')); // Use the correct path to the public/images directory
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -32,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); // Use express JSON parser
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
@@ -87,72 +88,89 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     }
   } else if (req.method === 'POST') {
-    const { action, data } = req.body;
+    let bodyData = '';
 
-    if (action === 'signup') {
+    // Manually parse the JSON body for POST requests
+    req.on('data', (chunk) => {
+      bodyData += chunk.toString(); // Accumulate data chunks
+    });
+
+    req.on('end', async () => {
       try {
-        const nextId = await getNextSequence('userId');
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        req.body = JSON.parse(bodyData); // Parse the accumulated data as JSON
+        console.log('action:', req.body);
+        const { action, data } = req.body;
+        
+        if (action === 'signup') {
+          try {
+            const nextId = await getNextSequence('userId');
+            const hashedPassword = await bcrypt.hash(data.password, 10);
 
-        const newUser = await UserModel.create({
-          id: nextId.toString(),
-          name: data.name,
-          email: data.email,
-          password: hashedPassword,
-          isAdmin: false,
-          image_url: 'images/whiteuser.png',
-          description: '',
-        });
+            const newUser = await UserModel.create({
+              id: nextId.toString(),
+              name: data.name,
+              email: data.email,
+              password: hashedPassword,
+              isAdmin: false,
+              image_url: 'images/whiteuser.png',
+              description: '',
+            });
 
-        return res.status(201).json(newUser);
-      } catch (err) {
-        console.error('Error creating user:', err);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-    } else if (action === 'signin') {
-      try {
-        const { email, password } = data;
-        const user = await UserModel.findOne({ email });
-        if (!user) {
-          return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(201).json(newUser);
+          } catch (err) {
+            console.error('Error creating user:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+        } else if (action === 'signin') {
+          try {
+            const { email, password } = data;
+            const user = await UserModel.findOne({ email });
+            if (!user) {
+              return res.status(401).json({ error: 'Invalid email or password' });
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+              return res.status(401).json({ error: 'Invalid email or password' });
+            }
+
+            const token = jwt.sign(
+              { id: user.id, email: user.email, isAdmin: user.isAdmin },
+              process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey',
+              { expiresIn: '1h' }
+            );
+
+            res.setHeader('Set-Cookie', cookie.serialize('authToken', token, {
+              httpOnly: false,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 60 * 60,
+              path: '/',
+            }));
+
+            return res.status(200).json({
+              token,
+              user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                isAdmin: user.isAdmin,
+                image_url: user.image_url,
+                description: user.description,
+              },
+            });
+          } catch (err) {
+            console.error('Error during sign-in:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-          return res.status(401).json({ error: 'Invalid email or password' });
-        }
-
-        const token = jwt.sign(
-          { id: user.id, email: user.email, isAdmin: user.isAdmin },
-          process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey',
-          { expiresIn: '1h' }
-        );
-
-        res.setHeader('Set-Cookie', cookie.serialize('authToken', token, {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 60,
-          path: '/',
-        }));
-
-        return res.status(200).json({
-          token,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            isAdmin: user.isAdmin,
-            image_url: user.image_url,
-            description: user.description,
-          },
-        });
       } catch (err) {
-        console.error('Error during sign-in:', err);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error parsing request body:', err);
+        return res.status(400).json({ error: 'Invalid request body' });
       }
-    }
+    });
   } else if (req.method === 'PUT') {
+    app.use(express.json());
     const uploadHandler = upload.single('image_url');
 
     uploadHandler(req as any, res as any, async (err: any) => {
@@ -162,9 +180,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
       
       const { id, name, email, password, description } = req.body;
-      const image_url = req.file
-        ? `images/${req.file.filename}` // If a new file is uploaded, use its path
-        : req.body.existing_image_url; // If no file is uploaded, use the existing image URL
+      const image_url = req.file ? `images/${req.file.filename}` : req.body.existing_image_url;
 
       try {
         const updatedUser = await UserModel.findOneAndUpdate(
@@ -173,17 +189,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             name,
             email,
             description,
-            ...(image_url && { image_url }), // Only add image_url if it exists
+            ...(image_url && { image_url }),
             password: password ? await bcrypt.hash(password, 10) : undefined,
           },
-          { new: true } // Return the updated document
+          { new: true }
         );
 
         if (!updatedUser) {
           return res.status(404).json({ error: 'User not found' });
         }
 
-        return res.status(200).json(updatedUser); // Send back the updated user
+        return res.status(200).json(updatedUser);
       } catch (err) {
         console.error('Error updating user:', err);
         return res.status(500).json({ error: 'Internal Server Error' });
@@ -196,6 +212,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export default handler;
+
 // Disable Next.js's default body parser for this API route
 export const config = {
   api: {

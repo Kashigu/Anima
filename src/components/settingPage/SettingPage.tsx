@@ -81,7 +81,6 @@ const SettingPage = () => {
       formDataToSend.append("existing_image_url", userData.image_url);
     }
     formDataToSend.append("password", formData.password === '' ? userData?.password || '' : formData.password);
-    console.log('formDataToSend:', formDataToSend);
     try {
       const response = await updateUser(formDataToSend); // Ensure updateUser is adjusted to accept FormData
       if (response) {
@@ -93,6 +92,9 @@ const SettingPage = () => {
             border: '1px solid #ffffff',
           },
         });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000); // 2000 milliseconds = 2 seconds
       } else {
         console.error('Error:', response);
         toast.error('Error during Changes!', {
