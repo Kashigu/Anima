@@ -145,7 +145,7 @@ const SettingPage = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
               required
             />
           </div>
@@ -157,7 +157,7 @@ const SettingPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
               required
             />
           </div>
@@ -169,7 +169,7 @@ const SettingPage = () => {
               type="file"
               name="image_url"
               onChange={handleFileChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
               accept="image/*"
             />
           </div>
@@ -188,7 +188,7 @@ const SettingPage = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
             />
           </div>
 
@@ -199,7 +199,7 @@ const SettingPage = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
             />
           </div>
 
@@ -210,7 +210,7 @@ const SettingPage = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-custom-dark text-white rounded"
+              className="w-full px-4 py-2 bg-black text-white rounded"
             />
           </div>
 

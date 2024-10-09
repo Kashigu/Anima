@@ -58,7 +58,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
         </div>
       </div>
       
-      <div className="flex flex-col w-full mt-6 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+      <div className="flex flex-col w-full mt-6 text-white text-4xl font-bold justify-start pl-2 bg-black pb-2 mb-12">
         Episodes
       </div>
       <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark mt-6">

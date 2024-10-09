@@ -164,7 +164,7 @@ function Header() {
   return (
     <>
     <Toaster />
-    <header className="bg-custom-dark flex justify-between items-center px-6 py-4">
+    <header className="bg-black flex justify-between items-center px-6 py-4">
       
       <div className="text-3xl text-white font-bold">
         <Link href="/">

@@ -29,7 +29,7 @@ const AdminPage = () => {
   // Render the admin page content if the user is authorized
   return (
     <div className="bg-custom-blue-dark h-screen flex flex-col w-full">
-      <div className="flex flex-col container mx-auto w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+      <div className="flex flex-col container mx-auto w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-black pb-2 mb-12">
         Content Management
       </div>
   
@@ -80,7 +80,7 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col container mx-auto w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-custom-dark pb-2 mb-12">
+      <div className="flex flex-col container mx-auto w-full mt-16 text-white text-4xl font-bold justify-start pl-2 bg-black pb-2 mb-12">
         Administration
       </div>
 
