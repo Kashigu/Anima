@@ -240,24 +240,24 @@ function Header() {
           </div>
       
           {/* Email Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="email"
               type="text"
               placeholder="Email"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.email}
               onChange={handleInputChange}
             />
           </div>
       
           {/* Password Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="password"
               type="password"
               placeholder="Password"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.password}
               onChange={handleInputChange}
             />
@@ -348,47 +348,47 @@ function Header() {
           </div>
       
           {/* Username Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="username"
               type="text"
               placeholder="Username"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.username}
               onChange={handleInputChange}
             />
           </div>
         
           {/* Email Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="email"
               type="email"
               placeholder="Email"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.email}
               onChange={handleInputChange}
             />
           </div>
       
           {/* Password Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="password"
               type="password"
               placeholder="Password"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.password}
               onChange={handleInputChange}
             />
           </div>
           {/* Confirmation Password Input */}
-          <div className="bg-custom-dark rounded-full flex items-center gap-2 py-2 px-2 mb-4">
+          <div className="bg-black rounded-full flex items-center gap-2 py-2 px-2 mb-4">
             <input
               id="confirmationPassword"
               type="password"
               placeholder="Confirmation Password"
-              className="bg-custom-dark w-full outline-none"
+              className="bg-black w-full outline-none"
               value={formData.confirmationPassword}
               onChange={handleInputChange}
             />
