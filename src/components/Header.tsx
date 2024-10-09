@@ -195,7 +195,7 @@ function Header() {
           onClick={() => setDropdownOpen(!isDropdownOpen)} 
         />
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-14 w-48 bg-custom-dark rounded-md shadow-lg py-2 z-50">
+            <div className="absolute right-0 mt-14 w-48 bg-black rounded-md shadow-lg py-2 z-50">
               <a href = {`/Profile/${userData.id}`} className="block px-4 py-2  text-white hover:bg-red-500">
                 Profile
               </a>
