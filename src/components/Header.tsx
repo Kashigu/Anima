@@ -160,7 +160,7 @@ function Header() {
   
   userAuth(setUserData); // Call userAuth to check authentication status
   
-
+  
   return (
     <>
     <Toaster />
@@ -202,6 +202,11 @@ function Header() {
               <a href={`/Settings`} className="block px-4 py-2 text-white hover:bg-red-500">
                 Settings
               </a>
+              {userData.isAdmin && (
+              <a href={`/Admin`} className="block px-4 py-2 text-white hover:bg-red-500">
+                Admin Page
+              </a>
+              )}
               <a href='#' onClick={() => setLogout(true)} className="block px-4 py-2 text-white hover:bg-red-500">
                 Logout
               </a>
