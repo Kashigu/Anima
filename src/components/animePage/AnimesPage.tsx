@@ -1,6 +1,5 @@
 "use client";
 import { getEpisodesOfAnimeById } from '@/lib/client/animesClient';
-import mongoose from 'mongoose';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';

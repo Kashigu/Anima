@@ -1,6 +1,5 @@
 "use client"; 
-
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faUser ,faSearch } from '@fortawesome/free-solid-svg-icons'; 
 import Link from 'next/link';
@@ -10,7 +9,6 @@ import { postUser , signIn} from '@/lib/client/user';
 import { User } from '@/lib/interfaces/interface';
 import userAuth from '@/app/hooks/useAuth'; 
 import Cookies from 'js-cookie';
-import { Session } from 'inspector';
 
 
 function Header() {

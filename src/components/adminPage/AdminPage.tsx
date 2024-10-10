@@ -1,5 +1,6 @@
 "use client";
 import useUser from "@/app/hooks/useUser";
+import Link from "next/link";
 
 const AdminPage = () => {
   const { userData, loading } = useUser();
@@ -46,7 +47,7 @@ const AdminPage = () => {
             </div>
             <h2 className="text-2xl mb-4 font-bold">Animes</h2>
             <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              List of Animes
+              <Link href={`/AdminList/1`}>List of Animes</Link>
             </button>
           </div>
   
@@ -61,7 +62,7 @@ const AdminPage = () => {
             </div>
             <h2 className="text-2xl mb-4 font-bold">Episodes</h2>
             <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              List of Episodes
+              <Link href={`/AdminList/2`}>List of Episodes</Link>
             </button>
           </div>
           {/* Create Manga Section */}
@@ -75,7 +76,7 @@ const AdminPage = () => {
             </div>
             <h2 className="text-2xl mb-4 font-bold">Mangas</h2>
             <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              List of Mangas
+              <Link href={`/AdminList/3`}>List of Mangas</Link>
             </button>
           </div>
         </div>
@@ -97,7 +98,7 @@ const AdminPage = () => {
               </div>
               <h2 className="text-2xl mb-4 font-bold">Users</h2>
               <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-                 List of Users 
+                <Link href={`/AdminList/4`}>List of Users</Link> 
               </button>
            </div>
         </div>
