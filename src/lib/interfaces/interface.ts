@@ -29,6 +29,7 @@ export interface User {
   image_url: string;
   isAdmin: boolean;
   description: string;
+  isBlocked: boolean;
 }
 
 export interface JWT{

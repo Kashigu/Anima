@@ -97,4 +97,15 @@ async function updateUser(data: FormData) {
   }
 }
 
-export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers };
+async function deleteUser(id: string) {
+  try {
+    const response = await axiosClient.delete(`api/userServer?userId=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+    return null;
+  }
+}
+
+
+export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers, deleteUser };

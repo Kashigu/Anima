@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   image_url: { type: String, required: false },
   description: { type: String, required: false },
+  isBlocked: { type: Boolean, default: false },
 }, { collection: 'users' });
 
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);

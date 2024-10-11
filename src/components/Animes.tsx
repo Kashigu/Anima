@@ -50,7 +50,7 @@ function Animes({ showFeature }: AnimesProps) {
                             <div ref={scrollRef} key={currentAnime.id}>
                                 <button
                                     onClick={() => scroll('left')}
-                                    className="custom-button bg-custom-dark absolute z-10 left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2"
+                                    className="custom-button bg-black absolute z-10 left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -77,7 +77,7 @@ function Animes({ showFeature }: AnimesProps) {
                                         {currentAnime.genre.slice(0,5).map((genre, index) => (
                                             <span
                                             key={index}
-                                            className="bg-custom-blue-dark px-2 py-1 rounded text-sm mb-2"
+                                            className="bg-black px-2 py-1 rounded text-sm mb-2"
                                             >
                                             {genre}
                                             </span>
@@ -91,7 +91,7 @@ function Animes({ showFeature }: AnimesProps) {
 
                                 <button
                                     onClick={() => scroll('right')}
-                                    className="custom-button bg-custom-dark absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2"
+                                    className="custom-button bg-black absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"

@@ -51,7 +51,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         // Case 1: If userId is provided, fetch the specific user's details
         if (userId) {
-           console.log('entrei aqui 1');
             const user = await UserModel.findOne({ id: userId });
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
@@ -63,6 +62,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 isAdmin: user.isAdmin,
                 image_url: user.image_url,
                 description: user.description,
+                isBlocked: user.isBlocked,
             });
         }
 
@@ -88,6 +88,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               isAdmin: user.isAdmin,
               image_url: user.image_url,
               description: user.description,
+              isBlocked: user.isBlocked,
           });
       }
     } catch (error) {
@@ -121,6 +122,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
               isAdmin: false,
               image_url: 'images/whiteuser.png',
               description: '',
+              isBlocked: false
             });
 
             return res.status(201).json(newUser);
@@ -164,6 +166,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 isAdmin: user.isAdmin,
                 image_url: user.image_url,
                 description: user.description,
+                isBlocked: user.isBlocked,
               },
             });
           } catch (err) {
@@ -212,6 +215,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(500).json({ error: 'Internal Server Error' });
       }
     });
+  } else if (req.method === 'DELETE'){
+    const { userId } = req.query;
+    try {
+      const deletedUser = await UserModel.deleteOne({ id: userId });
+      if (!deletedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      return res.status(200).json(deletedUser);
+    }
+    catch (err) {
+      console.error('Error deleting user:', err);
+      return res.status(500).json({ error: 'Internal Server'});
+    }
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'PUT']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
