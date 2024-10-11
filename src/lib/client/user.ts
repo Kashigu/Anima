@@ -11,6 +11,16 @@ async function getUser() {
   }
 }
 
+async function getUsers() {
+  try {
+    const response = await axiosClient.get('api/userServer?fetchAll=true');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    return null;
+  }
+}
+
 // Register user
 async function postUser(data: any) {
   try {
@@ -87,4 +97,4 @@ async function updateUser(data: FormData) {
   }
 }
 
-export { getUser , postUser, signIn, getUserWithToken , getUserById, updateUser };
+export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers };

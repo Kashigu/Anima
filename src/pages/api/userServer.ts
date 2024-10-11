@@ -41,51 +41,58 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const { authToken } = req.cookies;
     const { userId } = req.query;
+    const { fetchAll } = req.query;
 
+    // If neither authToken nor userId is provided, return an authentication error
     if (!authToken && !userId) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    if (userId) {
-      try {
-        const user = await UserModel.findOne({ id: userId });
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-        return res.status(200).json({
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          isAdmin: user.isAdmin,
-          image_url: user.image_url,
-          description: user.description,
-        });
-      } catch (error) {
-        console.error('Error fetching user by userId:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-    }
-
-    if (authToken) {
-      try {
-        const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey') as JWT;
-        const user = await UserModel.findOne({ id: decoded.id });
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-
-        return res.status(200).json({
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          isAdmin: user.isAdmin,
-          image_url: user.image_url,
-          description: user.description,
-        });
-      } catch (error) {
-        console.error('Error verifying token:', error);
         return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        // Case 1: If userId is provided, fetch the specific user's details
+        if (userId) {
+           console.log('entrei aqui 1');
+            const user = await UserModel.findOne({ id: userId });
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            return res.status(200).json({
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                isAdmin: user.isAdmin,
+                image_url: user.image_url,
+                description: user.description,
+            });
+        }
+
+        // Case 2: If authToken is present but no userId, fetch all users
+        if (authToken) {
+          const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY || 'superhiperultrasecretkey') as JWT;
+      
+          // Check if fetchAll is present and if the user is an admin
+          if (fetchAll === 'true' && decoded.isAdmin) {
+              const users = await UserModel.find({});
+              return res.status(200).json(users);
+          }
+      
+          //Fetch only the authenticated user's data
+          const user = await UserModel.findOne({ id: decoded.id });
+          if (!user) {
+              return res.status(404).json({ error: 'User not found' });
+          }
+          return res.status(200).json({
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              isAdmin: user.isAdmin,
+              image_url: user.image_url,
+              description: user.description,
+          });
       }
+    } catch (error) {
+        console.error('Error handling request:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
   } else if (req.method === 'POST') {
     let bodyData = '';
