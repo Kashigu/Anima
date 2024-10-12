@@ -84,9 +84,11 @@ function Animes({ showFeature }: AnimesProps) {
                                         ))}
                                     </div>
                                     <h1 className="text-4xl mb-4 font-bold text-left text-stroke">{currentAnime.title}</h1>
-                                    <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                                        <Link href={`/AnimesPage/${currentAnime.id}`}>WATCH NOW</Link>
-                                    </button>
+                                    <Link href={`/AnimesPage/${currentAnime.id}`}>
+                                        <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                                            WATCH NOW
+                                        </button>
+                                    </Link>
                                 </div>
 
                                 <button

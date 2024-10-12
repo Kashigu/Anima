@@ -46,9 +46,11 @@ const AdminPage = () => {
               />
             </div>
             <h2 className="text-2xl mb-4 font-bold">Animes</h2>
-            <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              <Link href={`/AdminList/1`}>List of Animes</Link>
-            </button>
+            <Link href={`/AdminList/1`}>
+              <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+                List of Animes
+              </button>
+            </Link>
           </div>
   
           {/* Create Episodes Section */}
@@ -61,9 +63,11 @@ const AdminPage = () => {
               />
             </div>
             <h2 className="text-2xl mb-4 font-bold">Episodes</h2>
-            <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              <Link href={`/AdminList/2`}>List of Episodes</Link>
-            </button>
+            <Link href={`/AdminList/2`}>
+              <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+              List of Episodes
+              </button>
+            </Link>
           </div>
           {/* Create Manga Section */}
           <div className="flex flex-col items-center bg-black p-4 rounded-lg shadow-lg w-[250px] h-[350px]">
@@ -75,9 +79,11 @@ const AdminPage = () => {
               />
             </div>
             <h2 className="text-2xl mb-4 font-bold">Mangas</h2>
-            <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-              <Link href={`/AdminList/3`}>List of Mangas</Link>
-            </button>
+            <Link href={`/AdminList/3`}>
+              <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+                List of Mangas
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -97,9 +103,11 @@ const AdminPage = () => {
                 />
               </div>
               <h2 className="text-2xl mb-4 font-bold">Users</h2>
-              <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-                <Link href={`/AdminList/4`}>List of Users</Link> 
-              </button>
+              <Link href={`/AdminList/4`}>
+                <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+                  List of Users
+                </button>
+              </Link> 
            </div>
         </div>
       </div>

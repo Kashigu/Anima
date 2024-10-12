@@ -202,6 +202,33 @@ function AdminListPage({ id }: { id: string }) {
                     List of Users
                 </div>
                 ))}
+                <div className="w-full max-w-4xl mx-auto mb-5 flex justify-between items-center">
+                    <Link href="/Admin">
+                        <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+                            Back
+                        </button>
+                    </Link>
+                    {(id == '1' && (
+                    <Link href="/Admin">
+                        <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
+                            New Anime
+                        </button>
+                    </Link>
+                    )) || (id == '2' && (
+                        <Link href="/Admin">
+                            <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
+                                New Episode
+                            </button>
+                        </Link>
+                    )) || (id == '3' && (
+                        <Link href="/Admin">
+                            <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
+                                New Manga
+                            </button>
+                        </Link>
+                    ))}
+                </div>
+                
                 <div className="list-container w-full max-w-4xl mx-auto">
                     {id == '1' && (
                         <table className="w-full text-white">
