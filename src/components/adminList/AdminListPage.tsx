@@ -1,15 +1,32 @@
 import { deleteUser, getUsers } from "@/lib/client/user";
-import { User } from "@/lib/interfaces/interface";
+import { Anime, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
+import useUser from "@/app/hooks/useUser";
+import { useRouter } from "next/navigation";
+import { deleteAnime, deleteEpisode, getAnimes, getEpisodes } from "@/lib/client/animesClient";
 
 function AdminListPage({ id }: { id: string }) {
+    {/* User */}
     const [users, setUsers] = useState<User[]>([]);
     const [isDeleteModal, setDelete] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    
+    {/* Anime */}
+    const [animes, setAnimes] = useState<Anime[]>([]);
+    const [isAnimeDeleteModal, setAnimeDelete] = useState(false);
+    const [animeToDelete, setAnimeToDelete] = useState<string | null>(null);
+    
+    {/* Episode */}
+    const [episodes, setEpisodes] = useState<Episode[]>([]);
+    const [isEpisodeDeleteModal, setEpisodeDelete] = useState(false);
+    const [episodeToDelete, setEpisodeToDelete] = useState<string | null>(null);
+
+    {/* Logged User*/ }
+    const { userData, loading } = useUser();
 
     useEffect(() => {
         async function gettingUsers() {
@@ -20,11 +37,28 @@ function AdminListPage({ id }: { id: string }) {
                 console.error('Failed to fetch users:', error);
             }
         }
-
+        async function gettingAnimes() {
+            try {
+                const data = await getAnimes();
+                setAnimes(data || []);
+            } catch (error) {
+                console.error('Failed to fetch animes:', error);
+            }
+        }
+        async function gettingEpisodes() {
+            try {
+                const data = await getEpisodes();
+                setEpisodes(data || []);
+            } catch (error) {
+                console.error('Failed to fetch episodes:', error);
+            }
+        }
+        gettingEpisodes();
+        gettingAnimes();
         gettingUsers();
     }, []);
 
-    const handleDeleteSubmit = async () => {
+    const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
         try {
             const response = await deleteUser(userToDelete);
@@ -53,68 +87,261 @@ function AdminListPage({ id }: { id: string }) {
         }
     };
 
+    const handleDeleteAnimeSubmit = async () => {
+        if (!animeToDelete) return;
+        try {
+            const response = await deleteAnime(animeToDelete);
+            if (response) {
+            setAnimes((prevAnimes) => prevAnimes.filter((anime) => anime.id !== animeToDelete));
+            setAnimeDelete(false);
+            setAnimeToDelete(null);
+            toast.success('Anime Deleted successfully!', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+            }
+        } catch (error) {
+            toast.error('Failed Deleting Anime.', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+        }
+    }
+
+    const handleDeleteEpisodeSubmit = async () => {
+        if (!episodeToDelete) return;
+        try {
+            const response = await deleteEpisode(episodeToDelete);
+            if (response) {
+            setEpisodes((prevEpisodes) => prevEpisodes.filter((episode) => episode.id !== episodeToDelete));
+            setEpisodeDelete(false);
+            setEpisodeToDelete(null);
+            toast.success('Episode Deleted successfully!', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+            }
+        } catch (error) {
+            toast.error('Failed Deleting Episode.', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+        }
+    }
+
     const openDeleteModal = (userId: string) => {
         setUserToDelete(userId);
         setDelete(true);
     };
+    const openDeleteAnimeModal = (animeId: string) => {
+        setAnimeToDelete(animeId);
+        setAnimeDelete(true);
+    };
+    const openDeleteEpisodeModal = (episodeId: string) => {
+        setEpisodeToDelete(episodeId);
+        setEpisodeDelete(true);
+    };
 
+    // Redirect unauthorized users early
+    if (!loading && (!userData || !userData.isAdmin)) {
+        return (
+        <div className="bg-custom-blue-dark h-screen flex justify-center items-center">
+            <div className="text-4xl text-white text-center font-bold">
+            Unauthorized
+            </div>
+        </div>
+        );
+    }
+
+    // If still loading user data, show a loading indicator
+    if (loading) {
+        return (
+        <div className="bg-custom-blue-dark h-screen flex justify-center items-center">
+            <div className="text-4xl text-white text-center font-bold">
+            Loading...
+            </div>
+        </div>
+        );
+    }
     return (
         <>
             <div className="container mx-auto h-screen bg-custom-blue-dark">
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                     <p></p>
                 </div>
+                {(id == '1' && (
+                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
+                    List of Animes
+                </div>
+                )) || (id == '2' && (
+                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
+                    List of Episodes
+                </div>
+                )) || (id == '3' && (
+                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
+                    List of Mangas
+                </div>
+                )) || (id == '4' && (
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
                     List of Users
                 </div>
+                ))}
                 <div className="list-container w-full max-w-4xl mx-auto">
-                    <table className="w-full text-white">
-                        <thead className="bg-gray-800">
-                            <tr>
-                                <th className="px-4 py-2 text-left">ID</th>
-                                <th className="px-4 py-2 text-left">Name</th>
-                                <th className="px-4 py-2 text-left">Image</th>
-                                <th className="px-4 py-2 text-left">Block/Unblock</th>
-                                <th className="px-4 py-2 text-left">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((user) => (
-                                <tr key={user.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
-                                    <td className="px-4 py-2">{user.id}</td>
-                                    <td className="px-4 py-2">
-                                        <Link href={`/Profile/${user.id}`} className="text-blue-400 hover:underline">
-                                            {user.name}
-                                        </Link>
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <img
-                                            src={`/${user?.image_url}`}
-                                            alt={user.name}
-                                            className="w-16 h-16 object-cover rounded-full"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <button className="text-white hover:text-red-500">
-                                            {user.isBlocked ? 'Unblock' : 'Block'}
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <button
-                                            className="text-white hover:text-red-500"
-                                            onClick={() => openDeleteModal(user.id)}
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </td>
+                    {id == '1' && (
+                        <table className="w-full text-white">
+                            <thead className="bg-gray-800">
+                                <tr>
+                                    <th className="px-4 py-2 text-left">ID</th>
+                                    <th className="px-4 py-2 text-left">Title</th>
+                                    <th className="px-4 py-2 text-left">Image</th>
+                                    <th className="px-4 py-2 text-left">Edit</th>
+                                    <th className="px-4 py-2 text-left">Delete</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {animes.map((anime) => (
+                                    <tr key={anime.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                        <td className="px-4 py-2">{anime.id}</td>
+                                        <td className="px-4 py-2">
+                                            <Link href={`/AnimesPage/${anime.id}`} className="text-blue-400 hover:underline">
+                                                {anime.title}
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <img
+                                                src={`${anime?.image_url}`}
+                                                alt={anime.title}
+                                                className="w-16 h-16 object-cover"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button className="text-white hover:text-red-500">
+                                                Edit
+                                            </button>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button
+                                                className="text-white hover:text-red-500"
+                                                onClick={() => openDeleteAnimeModal(anime.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                    {id == '2' && (
+                        <table className="w-full text-white">
+                            <thead className="bg-gray-800">
+                                <tr>
+                                    <th className="px-4 py-2 text-left">ID</th>
+                                    <th className="px-4 py-2 text-left">Title</th>
+                                    <th className="px-4 py-2 text-left">Thumbnail</th>
+                                    <th className="px-4 py-2 text-left">Edit</th>
+                                    <th className="px-4 py-2 text-left">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {episodes.map((episode) => (
+                                    <tr key={episode.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                        <td className="px-4 py-2">{episode.id}</td>
+                                        <td className="px-4 py-2">
+                                            <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="text-blue-400 hover:underline">
+                                                {episode.title}
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <img
+                                                src={`${episode?.thumbnail_url}`}
+                                                alt={episode.title}
+                                                className="w-16 h-16 object-cover"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button className="text-white hover:text-red-500">
+                                                Edit
+                                            </button>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button
+                                                className="text-white hover:text-red-500"
+                                                onClick={() => openDeleteEpisodeModal(episode.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                    {id == '4' && (
+                        <table className="w-full text-white">
+                            <thead className="bg-gray-800">
+                                <tr>
+                                    <th className="px-4 py-2 text-left">ID</th>
+                                    <th className="px-4 py-2 text-left">Name</th>
+                                    <th className="px-4 py-2 text-left">Image</th>
+                                    <th className="px-4 py-2 text-left">Block/Unblock</th>
+                                    <th className="px-4 py-2 text-left">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map((user) => (
+                                    <tr key={user.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                        <td className="px-4 py-2">{user.id}</td>
+                                        <td className="px-4 py-2">
+                                            <Link href={`/Profile/${user.id}`} className="text-blue-400 hover:underline">
+                                                {user.name}
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <img
+                                                src={`/${user?.image_url}`}
+                                                alt={user.name}
+                                                className="w-16 h-16 object-cover rounded-full"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button className="text-white hover:text-red-500">
+                                                {user.isBlocked ? 'Unblock' : 'Block'}
+                                            </button>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button
+                                                className="text-white hover:text-red-500"
+                                                onClick={() => openDeleteModal(user.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
 
-            {/* Delete Modal */}
+            {/* Delete User Modal */}
             {isDeleteModal && (
                 <div className="w-screen h-screen bg-custom-dark bg-opacity-50 z-50 fixed top-0 left-0 flex">
                     <div className="bg-custom-blue-dark relative rounded-2xl text-white shadow-lg shadow-[#7887dd] xl:w-4/12 lg:w-6/12 md:w-8/12 w-10/12 p-8 mx-auto my-auto flex flex-col">
@@ -134,7 +361,7 @@ function AdminListPage({ id }: { id: string }) {
                         <div className="flex justify-center">
                             <button
                                 className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
-                                onClick={handleDeleteSubmit}
+                                onClick={handleDeleteUserSubmit}
                             >
                                 Delete
                             </button>
@@ -142,6 +369,65 @@ function AdminListPage({ id }: { id: string }) {
                     </div>
                 </div>
             )}
+
+             {/* Delete Anime Modal */}
+             {isAnimeDeleteModal && (
+                <div className="w-screen h-screen bg-custom-dark bg-opacity-50 z-50 fixed top-0 left-0 flex">
+                    <div className="bg-custom-blue-dark relative rounded-2xl text-white shadow-lg shadow-[#7887dd] xl:w-4/12 lg:w-6/12 md:w-8/12 w-10/12 p-8 mx-auto my-auto flex flex-col">
+                        <div
+                            className="absolute top-4 right-4 cursor-pointer text-4xl"
+                            onClick={() => setAnimeDelete(false)}
+                        >
+                            &times;
+                        </div>
+
+                        <div className="text-3xl font-bold mx-auto mb-6">Delete</div>
+
+                        <div className="flex mb-5 text-2xl justify-center">
+                            <p>Are you sure you want to delete this Anime?</p>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button
+                                className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
+                                onClick={handleDeleteAnimeSubmit}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+                
+            {/* Delete Episode Modal */}
+            {isEpisodeDeleteModal && (
+                <div className="w-screen h-screen bg-custom-dark bg-opacity-50 z-50 fixed top-0 left-0 flex">
+                    <div className="bg-custom-blue-dark relative rounded-2xl text-white shadow-lg shadow-[#7887dd] xl:w-4/12 lg:w-6/12 md:w-8/12 w-10/12 p-8 mx-auto my-auto flex flex-col">
+                        <div
+                            className="absolute top-4 right-4 cursor-pointer text-4xl"
+                            onClick={() => setEpisodeDelete(false)}
+                        >
+                            &times;
+                        </div>
+
+                        <div className="text-3xl font-bold mx-auto mb-6">Delete</div>
+
+                        <div className="flex mb-5 text-2xl justify-center">
+                            <p>Are you sure you want to delete this Episode?</p>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button
+                                className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
+                                onClick={handleDeleteEpisodeSubmit}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }

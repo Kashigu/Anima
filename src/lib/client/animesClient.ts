@@ -50,4 +50,24 @@ async function getEpisodes() {
   }
 }
 
-export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById , getEpisodes};
+async function deleteAnime(id: string) {
+  try {
+    const response = await axiosClient.delete(`api/animesServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete anime:', error);
+    return null;
+  }
+}
+
+async function deleteEpisode(id: string) {
+  try {
+    const response = await axiosClient.delete(`api/episodesServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete episode:', error);
+    return null;
+  }
+}
+
+export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById , getEpisodes, deleteAnime, deleteEpisode };
