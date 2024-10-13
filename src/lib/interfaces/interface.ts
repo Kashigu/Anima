@@ -8,6 +8,7 @@ export interface Anime {
   description: string;
   genres: Array<string>;
   image_url: string;
+  big_image_url: string;
 }
 
 export interface Episode {

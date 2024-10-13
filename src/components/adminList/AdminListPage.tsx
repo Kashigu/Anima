@@ -2,12 +2,13 @@ import { deleteUser, getUsers } from "@/lib/client/user";
 import { Anime, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { deleteAnime, deleteEpisode, getAnimes, getEpisodes } from "@/lib/client/animesClient";
+
 
 function AdminListPage({ id }: { id: string }) {
     {/* User */}
@@ -236,7 +237,7 @@ function AdminListPage({ id }: { id: string }) {
                                 <tr>
                                     <th className="px-4 py-2 text-left">ID</th>
                                     <th className="px-4 py-2 text-left">Title</th>
-                                    <th className="px-4 py-2 text-left">Image</th>
+                                    <th className="px-4 py-2 text-left">Small Image</th>
                                     <th className="px-4 py-2 text-left">Edit</th>
                                     <th className="px-4 py-2 text-left">Delete</th>
                                 </tr>
@@ -259,7 +260,7 @@ function AdminListPage({ id }: { id: string }) {
                                         </td>
                                         <td className="px-4 py-2">
                                             <button className="text-white hover:text-red-500">
-                                                Edit
+                                                <FontAwesomeIcon icon={faEdit}/>
                                             </button>
                                         </td>
                                         <td className="px-4 py-2">
@@ -304,7 +305,7 @@ function AdminListPage({ id }: { id: string }) {
                                         </td>
                                         <td className="px-4 py-2">
                                             <button className="text-white hover:text-red-500">
-                                                Edit
+                                                <FontAwesomeIcon icon={faEdit}/>
                                             </button>
                                         </td>
                                         <td className="px-4 py-2">

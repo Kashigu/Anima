@@ -13,9 +13,11 @@ const NewAnime = () => {
         description: "",
         image_url: null as File | null,
         genres: [] as string[], // Array to hold selected genres
+        big_image_url: null as File | null,
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imagePreview2, setImagePreview2] = useState<string | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const router = useRouter();
 
@@ -40,15 +42,25 @@ const NewAnime = () => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
+        const { name, files } = e.target; // Get the name and files from the input
+        if (files && files.length > 0) {
+            const file = files[0]; // Get the first file
+    
             setFormData((prev) => ({
                 ...prev,
-                image_url: file,
+                [name]: file, // Set the file in formData using the input's name
             }));
-            setImagePreview(URL.createObjectURL(file));
+    
+            const imagePreviewUrl = URL.createObjectURL(file);
+            if (name === 'image_url') {
+                setImagePreview(imagePreviewUrl); // Set preview for small image
+            } else if (name === 'big_image_url') {
+                setImagePreview2(imagePreviewUrl); // Set preview for big image
+            }
         }
     };
+    
+    
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = e.target;
@@ -59,6 +71,8 @@ const NewAnime = () => {
                 : prev.genres.filter((genre) => genre !== value),
         }));
     };
+
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,6 +87,10 @@ const NewAnime = () => {
         if (formData.image_url) {
             formDataToSend.append("image_url", formData.image_url);
         }
+        if (formData.big_image_url) {
+            formDataToSend.append("big_image_url", formData.big_image_url);
+        }
+
         
         try {
             const response = await postAnime(formDataToSend);
@@ -187,6 +205,25 @@ const NewAnime = () => {
                     {imagePreview && (
                         <div className="w-full max-w-md">
                             <img src={imagePreview} alt="Preview" className="w-full mt-4" />
+                        </div>
+                    )}
+
+                    {/* File Input */}
+                    <div className="w-full max-w-md">
+                        <label className="block mb-2 text-2xl">Big Image Upload</label>
+                        <input
+                            type="file"
+                            name="big_image_url"
+                            onChange={handleFileChange}
+                            className="w-full px-4 py-2 bg-black text-white rounded"
+                            accept="image/*"
+                        />
+                    </div>
+
+                    {/* Image Preview */}
+                    {imagePreview2 && (
+                        <div className="w-full max-w-md">
+                            <img src={imagePreview2} alt="Preview" className="w-full mt-4" />
                         </div>
                     )}
 

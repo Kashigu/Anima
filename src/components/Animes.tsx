@@ -64,7 +64,7 @@ function Animes({ showFeature }: AnimesProps) {
                                 </button>
 
                                 <Image
-                                    src={currentAnime.image_url}
+                                    src={currentAnime.big_image_url}
                                     alt={currentAnime.title}
                                     fill
                                     sizes="(max-width: 975px) 100vw, 975px"

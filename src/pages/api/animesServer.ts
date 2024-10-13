@@ -51,30 +51,42 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   } else if (req.method === 'POST') {
-    upload.single('image_url')(req as any, res as any, async (err: any) => {
+    upload.fields([
+      { name: 'image_url', maxCount: 1 }, // Specify maxCount if expecting one file
+      { name: 'big_image_url', maxCount: 1 } // Specify maxCount if expecting one file
+  ])(req as any, res as any, async (err: any) => {
       if (err) {
-        console.error('Error uploading image:', err);
-        return res.status(500).json({ error: 'Failed to upload image' });
+          console.error('Error uploading images:', err);
+          return res.status(500).json({ error: 'Failed to upload images' });
       }
+
       const { title, description } = req.body;
-      const image_url = req.file ? `/images/${req.file.filename}` : req.body.existing_image_url;
-  
+      
+      // Access uploaded files
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      const imageFile = files && files['image_url'] ? files['image_url'][0] : null;
+      const bigImageFile = files && files['big_image_url'] ? files['big_image_url'][0] : null;
+
+      const image_url = imageFile ? `/images/${imageFile.filename}` : req.body.existing_image_url;
+      const big_image_url = bigImageFile ? `/images/${bigImageFile.filename}` : req.body.existing_big_image_url;
+
       // Parse the genres array from req.body
       const genres = req.body.genres || []; // This might be a single string if not handled properly
       const genreArray = Array.isArray(genres) ? genres : [genres]; // Ensure it is an array 
+
       try {
-        const id = await getNextAnimeId();
-        if (id && title && description && image_url) {
-          const anime = await AnimeModel.create({ id, title, description, genres: genreArray, image_url });
-          return res.status(201).json(anime);
-        } else {
-          return res.status(400).json({ error: 'Invalid data' });
-        }
+          const id = await getNextAnimeId();
+          if (id && title && description && image_url) {
+              const anime = await AnimeModel.create({ id, title, description, genres: genreArray, image_url, big_image_url });
+              return res.status(201).json(anime);
+          } else {
+              return res.status(400).json({ error: 'Invalid data' });
+          }
       } catch (err) {
-        console.error('Error creating data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
+          console.error('Error creating data:', err);
+          res.status(500).json({ error: 'Internal Server Error' });
       }
-    });
+  });
   } else if (req.method === 'DELETE') {
     const { id } = req.query;
     try {
