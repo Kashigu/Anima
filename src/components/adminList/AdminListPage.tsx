@@ -209,13 +209,13 @@ function AdminListPage({ id }: { id: string }) {
                         </button>
                     </Link>
                     {(id == '1' && (
-                    <Link href="/Admin">
-                        <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
-                            New Anime
-                        </button>
-                    </Link>
+                        <Link href="/Animes/SettingAnimes">
+                            <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
+                                New Anime
+                            </button>
+                        </Link>
                     )) || (id == '2' && (
-                        <Link href="/Admin">
+                        <Link href="/Episodes/SettingEpisodes">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Episode
                             </button>

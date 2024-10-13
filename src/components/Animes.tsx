@@ -74,12 +74,12 @@ function Animes({ showFeature }: AnimesProps) {
                                 />
                                 <div className="absolute inset-0 flex flex-col justify-end items-start p-8 text-white bg-gradient-to-r from-darkBlue via-transparent to-transparent">
                                     <div className="flex flex-wrap space-x-2">
-                                        {currentAnime.genre.slice(0,5).map((genre, index) => (
+                                        {currentAnime.genres.slice(0,5).map((genres, index) => (
                                             <span
                                             key={index}
                                             className="bg-black px-2 py-1 rounded text-sm mb-2"
                                             >
-                                            {genre}
+                                            {genres}
                                             </span>
                                         ))}
                                     </div>

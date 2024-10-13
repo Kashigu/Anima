@@ -6,7 +6,7 @@ export interface Anime {
   id: string;
   title: string;
   description: string;
-  genre: Array<string>;
+  genres: Array<string>;
   image_url: string;
 }
 

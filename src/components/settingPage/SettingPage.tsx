@@ -127,7 +127,10 @@ const SettingPage = () => {
 
   return (
     <div className="bg-custom-blue-dark h-screen flex flex-col w-full">
-      <div className="text-4xl text-white text-center justify-center font-bold pt-5 mb-8">
+      <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
+        <p></p>
+      </div>
+      <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
         Settings
       </div>
       <div className="container mx-auto">

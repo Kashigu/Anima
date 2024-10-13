@@ -1,6 +1,5 @@
 import connectToDatabase from '@/lib/db';
 import UserModel from '@/lib/models/UserModel';
-import CounterUserModel from '@/lib/models/CounterUserModel'; 
 import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -9,10 +8,11 @@ import { JWT } from '@/lib/interfaces/interface';
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import CounterModel from '@/lib/models/CounterUserModel';
 
 // Function to get the next user sequence
 async function getNextSequence(name: string) {
-  const counter = await CounterUserModel.findOneAndUpdate(
+  const counter = await CounterModel.findOneAndUpdate(
     { _id: name },
     { $inc: { seq: 1 } },
     { new: true, upsert: true }
