@@ -32,6 +32,12 @@ export interface User {
   isBlocked: boolean;
 }
 
+export interface Category {
+  _id: mongoose.Schema.Types.ObjectId;
+  id: string;
+  name: string;
+}
+
 export interface JWT{
   id: string;
   email: string;
