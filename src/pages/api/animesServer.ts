@@ -56,19 +56,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         console.error('Error uploading image:', err);
         return res.status(500).json({ error: 'Failed to upload image' });
       }
-   
-      // Log req.file to see its structure
-      console.log('Uploaded file:', req.file);
-      
-      const { title, description, genres } = req.body;
+      const { title, description } = req.body;
       const image_url = req.file ? `/images/${req.file.filename}` : req.body.existing_image_url;
-   
-      console.log('Image URL:', image_url); // Log the image URL
-   
+  
+      // Parse the genres array from req.body
+      const genres = req.body.genres || []; // This might be a single string if not handled properly
+      const genreArray = Array.isArray(genres) ? genres : [genres]; // Ensure it is an array 
       try {
         const id = await getNextAnimeId();
-        if (id && title && description && genres && image_url) {
-          const anime = await AnimeModel.create({ id, title, description, genres, image_url });
+        if (id && title && description && image_url) {
+          const anime = await AnimeModel.create({ id, title, description, genres: genreArray, image_url });
           return res.status(201).json(anime);
         } else {
           return res.status(400).json({ error: 'Invalid data' });

@@ -19,7 +19,6 @@ const NewAnime = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const router = useRouter();
 
-
     useEffect(() => {
         const gettingCategories = async () => {
             try {
@@ -63,49 +62,53 @@ const NewAnime = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const formDataToSend = new FormData();
         formDataToSend.append("title", formData.title);
         formDataToSend.append("description", formData.description);
-        formDataToSend.append("genres", formData.genres.join(","));
+        
+        // Correctly append genres from formData
+        formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
+        
         if (formData.image_url) {
-        formDataToSend.append("image_url", formData.image_url);
+            formDataToSend.append("image_url", formData.image_url);
         }
+        
         try {
-        const response = await postAnime(formDataToSend);
-        if (response) {
-            toast.success('Changes successful!', {
-            style: {
-                backgroundColor: '#070720',
-                color: '#ffffff',
-                fontWeight: 'bold',
-                border: '1px solid #ffffff',
-            },
-            });
-            setTimeout(() => {
-                router.push("/AdminList/1");
-              }, 2000); // 2000 milliseconds = 2 seconds
-        } else {
-            console.error('Error:', response);
-            toast.error('Error during Changes!', {
-            style: {
-                backgroundColor: '#070720',
-                color: '#ffffff',
-                fontWeight: 'bold',
-                border: '1px solid #ffffff',
-            },
-            });
-        }
+            const response = await postAnime(formDataToSend);
+            if (response) {
+                toast.success('Changes successful!', {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+                setTimeout(() => {
+                    router.push("/AdminList/1");
+                }, 2000); // 2000 milliseconds = 2 seconds
+            } else {
+                console.error('Error:', response);
+                toast.error('Error during Changes!', {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+            }
         } catch (error) {
-        console.error('Error:', error);
-        toast.error('Error during Changes!', {
-            style: {
-            backgroundColor: '#070720',
-            color: '#ffffff',
-            fontWeight: 'bold',
-            border: '1px solid #ffffff',
-            },
-        });
+            console.error('Error:', error);
+            toast.error('Error during Changes!', {
+                style: {
+                    backgroundColor: '#070720',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    border: '1px solid #ffffff',
+                },
+            });
         }
     };
 
@@ -126,6 +129,7 @@ const NewAnime = () => {
             </div>
         );
     }
+
     return (
         <div className="container mx-auto h-screen bg-custom-blue-dark">
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
@@ -138,7 +142,7 @@ const NewAnime = () => {
                 <form 
                     onSubmit={handleSubmit}
                     className="flex flex-col items-center gap-6 text-white"
-                    method="PUT"
+                    method="POST" // Changed to POST
                     encType="multipart/form-data"
                 >
                     {/* Title Field */}
@@ -186,7 +190,7 @@ const NewAnime = () => {
                         </div>
                     )}
 
-                   {/* Genre Checkboxes */}
+                    {/* Genre Checkboxes */}
                     <div className="w-full max-w-md">
                         <label className="block mb-2 text-2xl">Genres</label>
                         <div className="flex flex-wrap gap-4">
