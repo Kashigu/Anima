@@ -3,6 +3,7 @@ import useUser from "@/app/hooks/useUser";
 import { getAnimeById, postAnime, updateAnime } from "@/lib/client/animesClient";
 import { getCategories } from "@/lib/client/categories";
 import { Anime, Category } from "@/lib/interfaces/interface";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -237,6 +238,13 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
             </div>
             )}
             <div className="container mx-auto">
+                <div className="w-full max-w-4xl mx-auto mb-5 flex justify-between items-center">
+                    <Link href="/AdminList/1">
+                        <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
+                            Back
+                        </button>
+                    </Link>
+                </div>
                 <form 
                     onSubmit={anime ? handleAnimeUpdate : handleSubmit}
                     className="flex flex-col items-center gap-6 text-white"
