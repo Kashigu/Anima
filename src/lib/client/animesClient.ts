@@ -85,4 +85,19 @@ async function postAnime(data: any) {
   }
 }
 
-export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById , getEpisodes, deleteAnime, deleteEpisode, postAnime };
+async function updateAnime(data: any) {
+  try {
+    const response = await axiosClient.put('api/animesServer', data,{
+      headers: {
+      'Content-Type': 'multipart/form-data', 
+      },
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update anime:', error);
+    return null;
+  }
+}
+
+export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById , getEpisodes, deleteAnime, deleteEpisode, postAnime, updateAnime };

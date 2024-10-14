@@ -247,7 +247,7 @@ function AdminListPage({ id }: { id: string }) {
                                     <tr key={anime.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
                                         <td className="px-4 py-2">{anime.id}</td>
                                         <td className="px-4 py-2">
-                                            <Link href={`/AnimesPage/${anime.id}`} className="text-blue-400 hover:underline">
+                                            <Link href={`/AnimesPage/${anime.id}`} className="text-white hover:text-red-500">
                                                 {anime.title}
                                             </Link>
                                         </td>
@@ -259,9 +259,11 @@ function AdminListPage({ id }: { id: string }) {
                                             />
                                         </td>
                                         <td className="px-4 py-2">
+                                            <Link href={`/Animes/SettingAnimes/${anime.id}`}>
                                             <button className="text-white hover:text-red-500">
                                                 <FontAwesomeIcon icon={faEdit}/>
                                             </button>
+                                            </Link>
                                         </td>
                                         <td className="px-4 py-2">
                                             <button

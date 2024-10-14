@@ -1,12 +1,17 @@
+"use client";
 import useUser from "@/app/hooks/useUser";
-import { postAnime } from "@/lib/client/animesClient";
+import { getAnimeById, postAnime, updateAnime } from "@/lib/client/animesClient";
 import { getCategories } from "@/lib/client/categories";
-import { Category } from "@/lib/interfaces/interface";
+import { Anime, Category } from "@/lib/interfaces/interface";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const NewAnime = () => {
+interface AnimesPageProps {
+    anime?: Anime | null;
+}
+
+const NewAnime = ({ anime }: AnimesPageProps) => {
     const { userData, loading } = useUser();
     const [formData, setFormData] = useState({
         title: "",
@@ -30,8 +35,19 @@ const NewAnime = () => {
                 console.error('Failed to fetch categories:', error);
             }
         };
+        if (anime) {
+            setFormData({
+              title: anime.title || "",
+              description: anime.description || "",
+              image_url: null,
+              big_image_url: null,
+              genres: anime.genres || [],
+            });
+          }
         gettingCategories();
-    }, []);
+
+
+    }, [anime]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -95,7 +111,7 @@ const NewAnime = () => {
         try {
             const response = await postAnime(formDataToSend);
             if (response) {
-                toast.success('Changes successful!', {
+                toast.success('Anime Created successfully!', {
                     style: {
                         backgroundColor: '#070720',
                         color: '#ffffff',
@@ -108,7 +124,7 @@ const NewAnime = () => {
                 }, 2000); // 2000 milliseconds = 2 seconds
             } else {
                 console.error('Error:', response);
-                toast.error('Error during Changes!', {
+                toast.error('Error during Creation!', {
                     style: {
                         backgroundColor: '#070720',
                         color: '#ffffff',
@@ -119,7 +135,65 @@ const NewAnime = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error('Error during Changes!', {
+            toast.error('Error during Creation!', {
+                style: {
+                    backgroundColor: '#070720',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    border: '1px solid #ffffff',
+                },
+            });
+        }
+    };
+    const handleAnimeUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const formDataToSend = new FormData();
+        if (anime?.id) {
+            formDataToSend.append("id", anime.id);
+        }
+        formDataToSend.append("title", formData.title);
+        formDataToSend.append("description", formData.description);
+        
+        // Correctly append genres from formData
+        formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
+        
+        if (formData.image_url) {
+            formDataToSend.append("image_url", formData.image_url);
+        }
+        if (formData.big_image_url) {
+            formDataToSend.append("big_image_url", formData.big_image_url);
+        }
+
+        
+        try {
+            const response = await updateAnime(formDataToSend);
+            if (response) {
+                toast.success('Anime Updated successfully!', {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+                setTimeout(() => {
+                    router.push("/AdminList/1");
+                }, 2000); // 2000 milliseconds = 2 seconds
+            } else {
+                console.error('Error:', response);
+                toast.error('Error during Update!', {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Error during Update!', {
                 style: {
                     backgroundColor: '#070720',
                     color: '#ffffff',
@@ -153,12 +227,18 @@ const NewAnime = () => {
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                 <p></p>
             </div>
+            {anime && (
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
+                Editing Anime
+            </div>
+            )}
+            {!anime && (<div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
                 New Anime
             </div>
+            )}
             <div className="container mx-auto">
                 <form 
-                    onSubmit={handleSubmit}
+                    onSubmit={anime ? handleAnimeUpdate : handleSubmit}
                     className="flex flex-col items-center gap-6 text-white"
                     method="POST" // Changed to POST
                     encType="multipart/form-data"
@@ -179,12 +259,12 @@ const NewAnime = () => {
                     {/* Description Field */}
                     <div className="w-full max-w-md">
                         <label className="block mb-2 text-2xl">Description</label>
-                        <input
+                        <textarea
                             type="text"
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 bg-black text-white rounded"
+                            className="w-full h-32  px-4 py-2 bg-black text-white rounded"
                             required
                         />
                     </div>
@@ -238,6 +318,7 @@ const NewAnime = () => {
                                         name="genres"
                                         id={category.id}
                                         value={category.name}
+                                        checked={formData.genres.includes(category.name)}
                                         onChange={handleCheckboxChange}
                                         className="mr-2"
                                     />
@@ -250,12 +331,23 @@ const NewAnime = () => {
                     </div>
 
                     {/* Submit Button */}
+                    {anime && (
                     <button
                         type="submit"
                         className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
                     >
                         Save Changes
                     </button>
+                    )}
+                    {!anime && (
+                         <button
+                         type="submit"
+                         className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
+                     >
+                        Create Anime
+                     </button>
+                    )}
+
                 </form>
             </div>
         </div>

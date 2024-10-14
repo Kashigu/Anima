@@ -87,7 +87,68 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           res.status(500).json({ error: 'Internal Server Error' });
       }
   });
-  } else if (req.method === 'DELETE') {
+  } else if (req.method === 'PUT') {
+    upload.fields([
+      { name: 'image_url', maxCount: 1 }, 
+      { name: 'big_image_url', maxCount: 1 }
+  ])(req as any, res as any, async (err: any) => {
+      if (err) {
+          console.error('Error uploading images:', err);
+          return res.status(500).json({ error: 'Failed to upload images' });
+      }
+
+      const { id, title, description } = req.body;
+      
+      // Access uploaded files
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      const imageFile = files && files['image_url'] ? files['image_url'][0] : null;
+      const bigImageFile = files && files['big_image_url'] ? files['big_image_url'][0] : null;
+
+      // Fetch the anime details to get the existing image URLs
+      let existingAnime;
+      try {
+          existingAnime = await AnimeModel.findOne({ id: id });
+          if (!existingAnime) {
+              return res.status(404).json({ error: 'Anime not found' });
+          }
+      } catch (fetchError) {
+          console.error('Error fetching existing anime:', fetchError);
+          return res.status(500).json({ error: 'Failed to fetch anime data' });
+      }
+
+      // Use the existing image URLs if new images are not provided
+      const image_url = imageFile ? `/images/${imageFile.filename}` : existingAnime.image_url;
+      const big_image_url = bigImageFile ? `/images/${bigImageFile.filename}` : existingAnime.big_image_url;
+
+      // Parse the genres array from req.body
+      const genres = req.body.genres || [];
+      const genreArray = Array.isArray(genres) ? genres : [genres];
+
+      try {
+          if (id && title && description) {
+              const updatedAnime = await AnimeModel.findOneAndUpdate(
+                  { id: id },
+                  { title, description, genres: genreArray, image_url, big_image_url },
+                  { new: true }
+              );
+
+              if (updatedAnime) {
+                  return res.status(200).json(updatedAnime);
+              } else {
+                  return res.status(404).json({ error: 'Anime not found' });
+              }
+          } else {
+              return res.status(400).json({ error: 'Invalid data' });
+          }
+      } catch (err) {
+          console.error('Error updating data:', err);
+          res.status(500).json({ error: 'Internal Server Error' });
+      }
+  });
+  
+  
+  
+  }else if (req.method === 'DELETE') {
     const { id } = req.query;
     try {
       if (id && typeof id === 'string') {
@@ -105,7 +166,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   } else {
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PUT']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
