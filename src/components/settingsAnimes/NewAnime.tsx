@@ -1,6 +1,6 @@
 "use client";
 import useUser from "@/app/hooks/useUser";
-import { getAnimeById, postAnime, updateAnime } from "@/lib/client/animesClient";
+import { postAnime, updateAnime } from "@/lib/client/animesClient";
 import { getCategories } from "@/lib/client/categories";
 import { Anime, Category } from "@/lib/interfaces/interface";
 import Link from "next/link";

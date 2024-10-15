@@ -22,4 +22,24 @@ async function deleteCategory(id: string) {
   }
 }
 
-export { getCategories, deleteCategory };
+async function updateCategory(formData: FormData) {
+  try {
+    const response = await axiosClient.put('api/categoriesServer', formData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update category:', error);
+    return null;
+  }
+}
+
+async function postCategory(formData: FormData) {
+  try {
+    const response = await axiosClient.post('api/categoriesServer', formData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to post category:', error);
+    return null;
+  }
+}
+
+export { getCategories, deleteCategory, updateCategory, postCategory };

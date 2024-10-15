@@ -270,7 +270,7 @@ function AdminListPage({ id }: { id: string }) {
                             </button>
                         </Link>
                     )) || (id == '3' && (
-                        <Link href="/Admin">
+                        <Link href="/Category">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Category
                             </button>
