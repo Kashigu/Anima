@@ -12,4 +12,14 @@ async function getCategories() {
   }
 }
 
-export { getCategories };
+async function deleteCategory(id: string) {
+  try {
+    const response = await axiosClient.delete(`api/categoriesServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete category:', error);
+    return null;
+  }
+}
+
+export { getCategories, deleteCategory };

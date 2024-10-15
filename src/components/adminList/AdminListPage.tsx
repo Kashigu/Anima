@@ -1,13 +1,13 @@
 import { deleteUser, getUsers } from "@/lib/client/user";
-import { Anime, Episode, User } from "@/lib/interfaces/interface";
+import { Anime, Category, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
-import { useRouter } from "next/navigation";
 import { deleteAnime, deleteEpisode, getAnimes, getEpisodes } from "@/lib/client/animesClient";
+import { deleteCategory, getCategories } from "@/lib/client/categories";
 
 
 function AdminListPage({ id }: { id: string }) {
@@ -25,6 +25,12 @@ function AdminListPage({ id }: { id: string }) {
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [isEpisodeDeleteModal, setEpisodeDelete] = useState(false);
     const [episodeToDelete, setEpisodeToDelete] = useState<string | null>(null);
+
+    {/* Categories */}
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [isCategoryDeleteModal, setCategoryDelete] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null); 
+    
 
     {/* Logged User*/ }
     const { userData, loading } = useUser();
@@ -54,6 +60,15 @@ function AdminListPage({ id }: { id: string }) {
                 console.error('Failed to fetch episodes:', error);
             }
         }
+        async function gettingCategories() {
+            try {
+                const data = await getCategories();
+                setCategories(data || []);
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        }
+        gettingCategories();
         gettingEpisodes();
         gettingAnimes();
         gettingUsers();
@@ -146,6 +161,35 @@ function AdminListPage({ id }: { id: string }) {
         }
     }
 
+    const handleDeleteCategorySubmit = async () => {
+        if (!categoryToDelete) return;
+        try {
+            const response = await deleteCategory(categoryToDelete);
+            if (response) {
+            setCategories((prevCategories) => prevCategories.filter((category) => category.id !== categoryToDelete));
+            setCategoryDelete(false);
+            setCategoryToDelete(null);
+            toast.success('Category Deleted successfully!', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+             }
+        } catch (error) {
+            toast.error('Failed Deleting Category.', {
+                style: {
+                  backgroundColor: '#070720',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  border: '1px solid #ffffff',
+                },
+              });
+        }
+    }
+
     const openDeleteModal = (userId: string) => {
         setUserToDelete(userId);
         setDelete(true);
@@ -158,6 +202,10 @@ function AdminListPage({ id }: { id: string }) {
         setEpisodeToDelete(episodeId);
         setEpisodeDelete(true);
     };
+    const openDeleteCategoryModal = (categoryId: string) => {
+        setCategoryToDelete(categoryId);
+        setCategoryDelete(true);
+    }
 
     // Redirect unauthorized users early
     if (!loading && (!userData || !userData.isAdmin)) {
@@ -196,7 +244,7 @@ function AdminListPage({ id }: { id: string }) {
                 </div>
                 )) || (id == '3' && (
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
-                    List of Mangas
+                    List of Categories
                 </div>
                 )) || (id == '4' && (
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
@@ -224,7 +272,7 @@ function AdminListPage({ id }: { id: string }) {
                     )) || (id == '3' && (
                         <Link href="/Admin">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
-                                New Manga
+                                New Category
                             </button>
                         </Link>
                     ))}
@@ -314,6 +362,41 @@ function AdminListPage({ id }: { id: string }) {
                                             <button
                                                 className="text-white hover:text-red-500"
                                                 onClick={() => openDeleteEpisodeModal(episode.id)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                    {id == '3' && (
+                        <table className="w-full text-white">
+                            <thead className="bg-gray-800">
+                                <tr>
+                                    <th className="px-4 py-2 text-left">ID</th>
+                                    <th className="px-4 py-2 text-left">Name</th>
+                                    <th className="px-4 py-2 text-left">Edit</th>
+                                    <th className="px-4 py-2 text-left">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {categories.map((category) => (
+                                    <tr key={category.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                        <td className="px-4 py-2">{category.id}</td>
+                                        <td className="px-4 py-2">
+                                            {category.name}
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button className="text-white hover:text-red-500">
+                                                <FontAwesomeIcon icon={faEdit}/>
+                                            </button>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <button
+                                                className="text-white hover:text-red-500"
+                                                onClick={() => openDeleteCategoryModal(category.id)}
                                             >
                                                 <FontAwesomeIcon icon={faTrash} />
                                             </button>
@@ -450,6 +533,35 @@ function AdminListPage({ id }: { id: string }) {
                             <button
                                 className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
                                 onClick={handleDeleteEpisodeSubmit}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Category Modal */}
+            {isCategoryDeleteModal && (
+                <div className="w-screen h-screen bg-custom-dark bg-opacity-50 z-50 fixed top-0 left-0 flex">
+                    <div className="bg-custom-blue-dark relative rounded-2xl text-white shadow-lg shadow-[#7887dd] xl:w-4/12 lg:w-6/12 md:w-8/12 w-10/12 p-8 mx-auto my-auto flex flex-col">
+                        <div
+                            className="absolute top-4 right-4 cursor-pointer text-4xl"
+                            onClick={() => setCategoryDelete(false)}
+                        >
+                            &times;
+                        </div>
+
+                        <div className="text-3xl font-bold mx-auto mb-6">Delete</div>
+
+                        <div className="flex mb-5 text-2xl justify-center">
+                            <p>Are you sure you want to delete this Category?</p>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button
+                                className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
+                                onClick={handleDeleteCategorySubmit}
                             >
                                 Delete
                             </button>

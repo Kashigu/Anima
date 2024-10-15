@@ -78,10 +78,10 @@ const AdminPage = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h2 className="text-2xl mb-4 font-bold">Mangas</h2>
+            <h2 className="text-2xl mb-4 font-bold">Categories</h2>
             <Link href={`/AdminList/3`}>
               <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
-                List of Mangas
+                List of Categories
               </button>
             </Link>
           </div>
