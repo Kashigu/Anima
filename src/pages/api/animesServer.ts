@@ -32,24 +32,27 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
-    const { id } = req.query;
-
-    try {
-      if (id && typeof id === 'string') {
-        const anime = await AnimeModel.findOne({ id });
-        if (anime) {
-          res.status(200).json(anime);
+    const { id ,search } = req.query;
+      try {
+        if (id && typeof id === 'string') {
+          const anime = await AnimeModel.findOne({ id });
+          if (anime) {
+            res.status(200).json(anime);
+          } else {
+            res.status(404).json({ error: 'Anime not found' });
+          }
+        } else if (search && typeof search === 'string' && search.trim() !== '') {
+          const animes = await AnimeModel.find({ title: { $regex: search, $options: 'i' } });
+          res.status(200).json(animes);
         } else {
-          res.status(404).json({ error: 'Anime not found' });
+          const animes = await AnimeModel.find({});
+          res.status(200).json(animes);
         }
-      } else {
-        const animes = await AnimeModel.find({});
-        res.status(200).json(animes);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
       }
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+
   } else if (req.method === 'POST') {
     upload.fields([
       { name: 'image_url', maxCount: 1 }, // Specify maxCount if expecting one file

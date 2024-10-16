@@ -1,12 +1,12 @@
 import { deleteUser, getUsers } from "@/lib/client/user";
 import { Anime, Category, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
-import { deleteAnime, deleteEpisode, getAnimes, getEpisodes } from "@/lib/client/animesClient";
+import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes } from "@/lib/client/animesClient";
 import { deleteCategory, getCategories } from "@/lib/client/categories";
 
 
@@ -20,6 +20,7 @@ function AdminListPage({ id }: { id: string }) {
     const [animes, setAnimes] = useState<Anime[]>([]);
     const [isAnimeDeleteModal, setAnimeDelete] = useState(false);
     const [animeToDelete, setAnimeToDelete] = useState<string | null>(null);
+    const [searchAnimeQuery, setAnimeSearchQuery] = useState('');
     
     {/* Episode */}
     const [episodes, setEpisodes] = useState<Episode[]>([]);
@@ -36,43 +37,48 @@ function AdminListPage({ id }: { id: string }) {
     const { userData, loading } = useUser();
 
     useEffect(() => {
-        async function gettingUsers() {
+        async function fetchData() {
             try {
-                const data = await getUsers();
-                setUsers(data || []);
+                const [usersData, animesData, episodesData, categoriesData] = await Promise.all([
+                    getUsers(),
+                    getAnimes(),
+                    getEpisodes(),
+                    getCategories()
+                ]);
+    
+                setUsers(usersData || []);
+                setAnimes(animesData || []);
+                setEpisodes(episodesData || []);
+                setCategories(categoriesData || []);
             } catch (error) {
-                console.error('Failed to fetch users:', error);
+                console.error('Failed to fetch data:', error);
             }
         }
-        async function gettingAnimes() {
-            try {
-                const data = await getAnimes();
-                setAnimes(data || []);
-            } catch (error) {
-                console.error('Failed to fetch animes:', error);
-            }
-        }
-        async function gettingEpisodes() {
-            try {
-                const data = await getEpisodes();
-                setEpisodes(data || []);
-            } catch (error) {
-                console.error('Failed to fetch episodes:', error);
-            }
-        }
-        async function gettingCategories() {
-            try {
-                const data = await getCategories();
-                setCategories(data || []);
-            } catch (error) {
-                console.error('Failed to fetch categories:', error);
-            }
-        }
-        gettingCategories();
-        gettingEpisodes();
-        gettingAnimes();
-        gettingUsers();
+        fetchData();
     }, []);
+
+    // Effect for searching animes whenever the query changes
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchAnimeQuery.trim()) {
+                try {
+                    const results = await getSearchedAnimes(searchAnimeQuery);
+                    if (results) {
+                        setAnimes(results);
+                    }
+                } catch (error) {
+                    console.error('Error searching for animes:', error);
+                }
+            } else {
+                const animesData = await getAnimes();
+                setAnimes(animesData || []);
+            }
+        }, 300); 
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchAnimeQuery]); 
+
+    
 
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
@@ -207,6 +213,13 @@ function AdminListPage({ id }: { id: string }) {
         setCategoryDelete(true);
     }
 
+    const handleAnimeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setAnimeSearchQuery(e.target.value);
+    };
+
+
+   
+
     // Redirect unauthorized users early
     if (!loading && (!userData || !userData.isAdmin)) {
         return (
@@ -258,11 +271,20 @@ function AdminListPage({ id }: { id: string }) {
                         </button>
                     </Link>
                     {(id == '1' && (
+                        <>
+                        <input
+                            type="text"
+                            placeholder="Search Anime"
+                            value={searchAnimeQuery}
+                            onChange={handleAnimeSearchChange}
+                            className="bg-black text-white px-4 py-2 rounded "
+                        />
                         <Link href="/Animes/SettingAnimes">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Anime
                             </button>
                         </Link>
+                        </>
                     )) || (id == '2' && (
                         <Link href="/Episodes/SettingEpisodes">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
