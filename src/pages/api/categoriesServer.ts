@@ -14,6 +14,14 @@ const getNextCategoryId = async () => {
     return counter.seq;
   };
 
+const getBackCategoryId = async () => {
+    const counter = await CounterModel.findByIdAndUpdate(
+      { _id: 'categoryId' },
+      { $inc: { seq: -1 } },
+      { new: true, upsert: true }
+    );
+    return counter.seq;
+  };
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     await connectToDatabase();
@@ -52,8 +60,29 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         res.status(201).json(newCategory);
         } catch (err) {
         console.error('Error creating category:', err);
+        await getBackCategoryId();
         res.status(500).json({ error: 'Internal Server Error' });
         }    
+    } else if (req.method === 'PUT') {
+        try {
+        const { id, name } = req.body;
+        const category = await CategoryModel.findOne({ id: id });
+
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        await CategoryModel.findOneAndUpdate({ id: id }, { name: name });
+        await AnimeModel.updateMany(
+            { genres: category.name },
+            { $set: { 'genres.$': name } }
+        );
+        res.status(200).json({ message: 'Category updated successfully' });
+        } catch (err) {
+        console.error('Error updating category:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+        }
+    
     }else if (req.method === 'DELETE') {
         try {
         const { id } = req.query;
@@ -75,7 +104,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         res.status(500).json({ error: 'Internal Server Error' });
         }
     }else {
-        res.setHeader('Allow', ['GET','DELETE']);
+        res.setHeader('Allow', ['GET','DELETE','POST','PUT']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }
