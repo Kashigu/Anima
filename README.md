@@ -1,10 +1,16 @@
+# Anima
+
 Anima is a Single Page Application that allows users to view and search for anime. 
 The application supports multiple user types, including standard users and administrators, each with different permissions.
 
-Stacks used:
- - Next JS / React 
- - Typescript
+## Stacks Used
+- Next.js / React
+- TypeScript
 
-Libraries used:
- - TailwindCSS
- - React Hot Toast (Real-time Notifications)
+## Libraries Used
+- TailwindCSS
+- React Hot Toast (Real-time Notifications)
+
+## Screenshots
+![Home Page](./images/homepage.png)
+![Search Functionality](./images/screenshot2.png)
