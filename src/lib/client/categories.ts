@@ -52,4 +52,14 @@ async function getCategoryById(id: string) {
   }
 }
 
-export { getCategories, deleteCategory, updateCategory, postCategory, getCategoryById };
+async function getSearchedCategory(search: string) {
+  try {
+    const response = await axiosClient.get(`api/categoriesServer?search=${search}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return null;
+  }
+}
+
+export { getCategories, deleteCategory, updateCategory, postCategory, getCategoryById, getSearchedCategory };

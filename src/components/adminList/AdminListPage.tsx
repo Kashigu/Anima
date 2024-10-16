@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
 import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes } from "@/lib/client/animesClient";
-import { deleteCategory, getCategories } from "@/lib/client/categories";
+import { deleteCategory, getCategories, getSearchedCategory } from "@/lib/client/categories";
 
 
 function AdminListPage({ id }: { id: string }) {
@@ -31,6 +31,7 @@ function AdminListPage({ id }: { id: string }) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [isCategoryDeleteModal, setCategoryDelete] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null); 
+    const [searchCategoryQuery, setCategorySearchQuery] = useState('');
     
 
     {/* Logged User*/ }
@@ -78,7 +79,26 @@ function AdminListPage({ id }: { id: string }) {
         return () => clearTimeout(delayDebounceFn);
     }, [searchAnimeQuery]); 
 
-    
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchCategoryQuery.trim()) {
+                try {
+                    const results = await getSearchedCategory(searchCategoryQuery);
+                    if (results) {
+                        setCategories(results);
+                    }
+                } catch (error) {
+                    console.error('Error searching for animes:', error);
+                }
+            } else {
+                const categoriesData = await getCategories();
+                setCategories(categoriesData || []);
+            }
+        }, 300); 
+
+        return () => clearTimeout(delayDebounceFn);
+        
+    }, [searchCategoryQuery]); 
 
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
@@ -216,6 +236,9 @@ function AdminListPage({ id }: { id: string }) {
     const handleAnimeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setAnimeSearchQuery(e.target.value);
     };
+    const handleCategorySearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setCategorySearchQuery(e.target.value);
+    };
 
 
    
@@ -292,11 +315,20 @@ function AdminListPage({ id }: { id: string }) {
                             </button>
                         </Link>
                     )) || (id == '3' && (
+                        <>
+                        <input
+                            type="text"
+                            placeholder="Search Category"
+                            value={searchCategoryQuery}
+                            onChange={handleCategorySearchChange}
+                            className="bg-black text-white px-4 py-2 rounded "
+                        />
                         <Link href="/Categories">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Category
                             </button>
                         </Link>
+                        </>
                     ))}
                 </div>
                 
