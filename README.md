@@ -13,4 +13,4 @@ The application supports multiple user types, including standard users and admin
 
 ## Screenshots
 ![Home Page](./public/images/homepage.png)
-![Search Functionality](./images/screenshot2.png)
+![Register](./public/images/register.png)
