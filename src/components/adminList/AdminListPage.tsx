@@ -270,7 +270,7 @@ function AdminListPage({ id }: { id: string }) {
                             </button>
                         </Link>
                     )) || (id == '3' && (
-                        <Link href="/Category">
+                        <Link href="/Categories">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Category
                             </button>
@@ -389,9 +389,11 @@ function AdminListPage({ id }: { id: string }) {
                                             {category.name}
                                         </td>
                                         <td className="px-4 py-2">
+                                            <Link href={`/Categories/SettingCategories/${category.id}`}>
                                             <button className="text-white hover:text-red-500">
                                                 <FontAwesomeIcon icon={faEdit}/>
                                             </button>
+                                            </Link>
                                         </td>
                                         <td className="px-4 py-2">
                                             <button

@@ -42,4 +42,14 @@ async function postCategory(formData: FormData) {
   }
 }
 
-export { getCategories, deleteCategory, updateCategory, postCategory };
+async function getCategoryById(id: string) {
+  try {
+    const response = await axiosClient.get(`api/categoriesServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch category:', error);
+    return null;
+  }
+}
+
+export { getCategories, deleteCategory, updateCategory, postCategory, getCategoryById };
