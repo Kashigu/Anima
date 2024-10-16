@@ -12,5 +12,5 @@ The application supports multiple user types, including standard users and admin
 - React Hot Toast (Real-time Notifications)
 
 ## Screenshots
-![Home Page](./images/homepage.png)
-![Search Functionality](./images/screenshot2.png)
+![Home Page](./public/images/homepage.png)
+![Register](./public/images/register.png)
