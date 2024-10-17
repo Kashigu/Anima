@@ -88,7 +88,7 @@ function AdminListPage({ id }: { id: string }) {
                         setCategories(results);
                     }
                 } catch (error) {
-                    console.error('Error searching for animes:', error);
+                    console.error('Error searching for categories:', error);
                 }
             } else {
                 const categoriesData = await getCategories();
@@ -99,6 +99,27 @@ function AdminListPage({ id }: { id: string }) {
         return () => clearTimeout(delayDebounceFn);
         
     }, [searchCategoryQuery]); 
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchEpisodeQuery.trim()) {
+                try {
+                    const results = await getSearchedEpisode(searchEpisodeQuery);
+                    if (results) {
+                        setEpisodes(results);
+                    }
+                } catch (error) {
+                    console.error('Error searching for episodes:', error);
+                }
+            } else {
+                const episodesData = await getEpisodes();
+                setEpisodes(episodesData || []);
+            }
+        }, 300); 
+
+        return () => clearTimeout(delayDebounceFn);
+        
+    }, [searchCategoryQuery]);
 
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
