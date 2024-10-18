@@ -1,7 +1,7 @@
-import { deleteUser, getUsers } from "@/lib/client/user";
+import { deleteUser, getSearchedUsers, getUsers } from "@/lib/client/user";
 import { Anime, Category, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, use, useEffect, useState } from "react";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
@@ -15,6 +15,7 @@ function AdminListPage({ id }: { id: string }) {
     const [users, setUsers] = useState<User[]>([]);
     const [isDeleteModal, setDelete] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    const [searchUserQuery, setUserSearchQuery] = useState('');
     
     {/* Anime */}
     const [animes, setAnimes] = useState<Anime[]>([]);
@@ -59,69 +60,35 @@ function AdminListPage({ id }: { id: string }) {
         fetchData();
     }, []);
 
-    // Effect for searching animes whenever the query changes
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (searchAnimeQuery.trim()) {
-                try {
-                    const results = await getSearchedAnimes(searchAnimeQuery);
-                    if (results) {
-                        setAnimes(results);
+    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
+        useEffect(() => {
+            const delayDebounceFn = setTimeout(async () => {
+                if (query.trim()) {
+                    try {
+                        const results = await fetchFunction(query);
+                        if (results) {
+                            setData(results);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching data:', error);
                     }
-                } catch (error) {
-                    console.error('Error searching for animes:', error);
+                } else {
+                    const defaultData = await defaultDataFetch();
+                    setData(defaultData || []);
                 }
-            } else {
-                const animesData = await getAnimes();
-                setAnimes(animesData || []);
-            }
-        }, 300); 
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchAnimeQuery]); 
-
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (searchCategoryQuery.trim()) {
-                try {
-                    const results = await getSearchedCategory(searchCategoryQuery);
-                    if (results) {
-                        setCategories(results);
-                    }
-                } catch (error) {
-                    console.error('Error searching for categories:', error);
-                }
-            } else {
-                const categoriesData = await getCategories();
-                setCategories(categoriesData || []);
-            }
-        }, 300); 
-
-        return () => clearTimeout(delayDebounceFn);
-        
-    }, [searchCategoryQuery]); 
-
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (searchEpisodeQuery.trim()) {
-                try {
-                    const results = await getSearchedEpisodes(searchEpisodeQuery);
-                    if (results) {
-                        setEpisodes(results);
-                    }
-                } catch (error) {
-                    console.error('Error searching for episodes:', error);
-                }
-            } else {
-                const episodesData = await getEpisodes();
-                setEpisodes(episodesData || []);
-            }
-        }, 300); 
-
-        return () => clearTimeout(delayDebounceFn);
-        
-    }, [searchEpisodeQuery]);
-
+            }, 300);
+    
+            return () => clearTimeout(delayDebounceFn);
+        }, [query, fetchFunction, setData, defaultDataFetch]);
+    };
+    
+    // Using the useDebouncedSearch hook for each query
+    
+    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes);
+    useDebouncedSearch(searchCategoryQuery, getSearchedCategory, setCategories, getCategories);
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes);
+    useDebouncedSearch(searchUserQuery, getSearchedUsers, setUsers, getUsers);
+    
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
         try {
@@ -266,6 +233,10 @@ function AdminListPage({ id }: { id: string }) {
         setEpisodeSearchQuery(e.target.value);
     };
 
+    const handleUserSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setUserSearchQuery(e.target.value);
+    }
+
 
    
 
@@ -364,7 +335,15 @@ function AdminListPage({ id }: { id: string }) {
                             </button>
                         </Link>
                         </>
-                    ))}
+                    )) || (id == '4' && (
+                        <input
+                            type="text"
+                            placeholder="Search User"
+                            value={searchUserQuery}
+                            onChange={handleUserSearchChange}
+                            className="bg-black text-white px-4 py-2 rounded "
+                        />
+                        ))}
                 </div>
                 
                 <div className="list-container w-full max-w-4xl mx-auto">

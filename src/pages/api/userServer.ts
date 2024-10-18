@@ -40,8 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'GET') {
     const { authToken } = req.cookies;
-    const { userId } = req.query;
-    const { fetchAll } = req.query;
+    const { userId, fetchAll, search } = req.query;
 
     // If neither authToken nor userId is provided, return an authentication error
     if (!authToken && !userId) {
@@ -74,6 +73,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           if (fetchAll === 'true' && decoded.isAdmin) {
               const users = await UserModel.find({});
               return res.status(200).json(users);
+          }
+          else if (search && typeof search === 'string' && search.trim() !== ''){
+            const users = await UserModel.find({ name: { $regex: search, $options: 'i' } });
+            return res.status(200).json(users);
           }
       
           //Fetch only the authenticated user's data

@@ -82,6 +82,16 @@ async function getUserById(id: string) {
   }
 }
 
+async function getSearchedUsers(search: string) {
+  try {
+    const response = await axiosClient.get(`api/userServer?search=${search}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user by id:', error);
+    return null;
+  }
+}
+
 // Update user
 async function updateUser(data: FormData) {
   try {
@@ -108,4 +118,4 @@ async function deleteUser(id: string) {
 }
 
 
-export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers, deleteUser };
+export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers, deleteUser, getSearchedUsers };
