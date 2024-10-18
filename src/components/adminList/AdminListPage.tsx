@@ -6,7 +6,7 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
-import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes } from "@/lib/client/animesClient";
+import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes, getSearchedEpisodes } from "@/lib/client/animesClient";
 import { deleteCategory, getCategories, getSearchedCategory } from "@/lib/client/categories";
 
 
@@ -26,6 +26,7 @@ function AdminListPage({ id }: { id: string }) {
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [isEpisodeDeleteModal, setEpisodeDelete] = useState(false);
     const [episodeToDelete, setEpisodeToDelete] = useState<string | null>(null);
+    const [searchEpisodeQuery, setEpisodeSearchQuery] = useState('');
 
     {/* Categories */}
     const [categories, setCategories] = useState<Category[]>([]);
@@ -104,7 +105,7 @@ function AdminListPage({ id }: { id: string }) {
         const delayDebounceFn = setTimeout(async () => {
             if (searchEpisodeQuery.trim()) {
                 try {
-                    const results = await getSearchedEpisode(searchEpisodeQuery);
+                    const results = await getSearchedEpisodes(searchEpisodeQuery);
                     if (results) {
                         setEpisodes(results);
                     }
@@ -119,7 +120,7 @@ function AdminListPage({ id }: { id: string }) {
 
         return () => clearTimeout(delayDebounceFn);
         
-    }, [searchCategoryQuery]);
+    }, [searchEpisodeQuery]);
 
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
@@ -261,6 +262,10 @@ function AdminListPage({ id }: { id: string }) {
         setCategorySearchQuery(e.target.value);
     };
 
+    const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setEpisodeSearchQuery(e.target.value);
+    };
+
 
    
 
@@ -330,11 +335,20 @@ function AdminListPage({ id }: { id: string }) {
                         </Link>
                         </>
                     )) || (id == '2' && (
+                        <>
+                        <input
+                            type="text"
+                            placeholder="Search Episode"
+                            value={searchEpisodeQuery}
+                            onChange={handleEpisodeSearchChange}
+                            className="bg-black text-white px-4 py-2 rounded "
+                        />
                         <Link href="/Episodes/SettingEpisodes">
                             <button className="bg-green-500 text-white font-bold px-4 py-2 rounded hover:bg-green-600">
                                 New Episode
                             </button>
                         </Link>
+                        </>
                     )) || (id == '3' && (
                         <>
                         <input

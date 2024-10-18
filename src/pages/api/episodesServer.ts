@@ -6,12 +6,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
+    const { search } = req.query;
     try {
-      // Fetch all episodes
-      const episodes = await EpisodeModel.find({});
-      res.status(200).json(episodes);
+      if (search && typeof search === 'string' && search.trim() !== '') {
+        const episodes = await EpisodeModel.find({ title: { $regex: search, $options: 'i' } });
+        res.status(200).json(episodes);
+      } else {
+        const episodes = await EpisodeModel.find({});
+        res.status(200).json(episodes);
+      }
     } catch (err) {
-      console.error('Error fetching episodes:', err);
+      console.error('Error fetching data:', err);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   } else if (req.method === 'DELETE') {
