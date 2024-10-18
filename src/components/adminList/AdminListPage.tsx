@@ -400,6 +400,7 @@ function AdminListPage({ id }: { id: string }) {
                                 <tr>
                                     <th className="px-4 py-2 text-left">ID</th>
                                     <th className="px-4 py-2 text-left">Title</th>
+                                    <th className="px-4 py-2 text-left">Episode Number</th>
                                     <th className="px-4 py-2 text-left">Thumbnail</th>
                                     <th className="px-4 py-2 text-left">Edit</th>
                                     <th className="px-4 py-2 text-left">Delete</th>
@@ -410,9 +411,12 @@ function AdminListPage({ id }: { id: string }) {
                                     <tr key={episode.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
                                         <td className="px-4 py-2">{episode.id}</td>
                                         <td className="px-4 py-2">
-                                            <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="text-blue-400 hover:underline">
+                                            <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="text-white hover:text-red-500">
                                                 {episode.title}
                                             </Link>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            {episode.episodeNumber}
                                         </td>
                                         <td className="px-4 py-2">
                                             <img
@@ -422,9 +426,11 @@ function AdminListPage({ id }: { id: string }) {
                                             />
                                         </td>
                                         <td className="px-4 py-2">
+                                            <Link href={`/Episodes/SettingEpisodes/${episode.id}`} className="text-white hover:text-red-500">
                                             <button className="text-white hover:text-red-500">
                                                 <FontAwesomeIcon icon={faEdit}/>
                                             </button>
+                                            </Link>
                                         </td>
                                         <td className="px-4 py-2">
                                             <button

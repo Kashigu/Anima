@@ -1,54 +1,52 @@
 "use client";
 import useUser from "@/app/hooks/useUser";
-import { postAnime, updateAnime } from "@/lib/client/animesClient";
-import { getCategories } from "@/lib/client/categories";
-import { Anime, Category } from "@/lib/interfaces/interface";
+import { getAnimes, getSearchedAnimes, postEpisode, updateEpisode } from "@/lib/client/animesClient";
+import { Anime, Episode } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-interface AnimesPageProps {
-    anime?: Anime | null;
+interface EpisodesPageProps {
+    episode?: Episode | null;
 }
 
-const NewAnime = ({ anime }: AnimesPageProps) => {
+const NewEpisode = ({ episode }: EpisodesPageProps) => {
     const { userData, loading } = useUser();
     const [formData, setFormData] = useState({
         title: "",
-        description: "",
-        image_url: null as File | null,
-        genres: [] as string[], // Array to hold selected genres
-        big_image_url: null as File | null,
+        episodeNumber: "",
+        thumbnail_url: null as File | null,
+        idAnime: "",
+        video_url: null as File | null
     });
-
+    const [searchAnimeQuery, setAnimeSearchQuery] = useState('');
+    const [animes, setAnimes] = useState<Anime[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [imagePreview2, setImagePreview2] = useState<string | null>(null);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [showResults, setShowResults] = useState(false); // Control visibility of search results
     const router = useRouter();
 
     useEffect(() => {
-        const gettingCategories = async () => {
+        const gettingAnimes = async () => {
             try {
-                const data = await getCategories();
-                setCategories(data || []);
+                const data = await getAnimes();
+                setAnimes(data || []);
             } catch (error) {
                 console.error('Failed to fetch categories:', error);
             }
         };
-        if (anime) {
+
+        if (episode) {
             setFormData({
-              title: anime.title || "",
-              description: anime.description || "",
-              image_url: null,
-              big_image_url: null,
-              genres: anime.genres || [],
+                title: episode.title || "",
+                episodeNumber: episode.episodeNumber || "",
+                thumbnail_url: null,
+                idAnime: episode.idAnime || "",
+                video_url: null,
             });
-          }
-        gettingCategories();
-
-
-    }, [anime]);
+        }
+        gettingAnimes();
+    }, [episode]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -59,60 +57,39 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, files } = e.target; // Get the name and files from the input
+        const { name, files } = e.target;
         if (files && files.length > 0) {
-            const file = files[0]; // Get the first file
-    
+            const file = files[0];
             setFormData((prev) => ({
                 ...prev,
-                [name]: file, // Set the file in formData using the input's name
+                [name]: file,
             }));
-    
             const imagePreviewUrl = URL.createObjectURL(file);
-            if (name === 'image_url') {
-                setImagePreview(imagePreviewUrl); // Set preview for small image
-            } else if (name === 'big_image_url') {
-                setImagePreview2(imagePreviewUrl); // Set preview for big image
-            }
+            if (name === 'thumbnail_url') {
+                setImagePreview(imagePreviewUrl);
+            } 
         }
     };
-    
-    
-
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            genres: checked
-                ? [...prev.genres, value]
-                : prev.genres.filter((genre) => genre !== value),
-        }));
-    };
-
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const formDataToSend = new FormData();
         formDataToSend.append("title", formData.title);
-        formDataToSend.append("description", formData.description);
+        formDataToSend.append("episodeNumber", formData.episodeNumber);
+        formDataToSend.append("idAnime", formData.idAnime);
         
-        // Correctly append genres from formData
-        formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
-        
-        if (formData.image_url) {
-            formDataToSend.append("image_url", formData.image_url);
+        if (formData.thumbnail_url) {
+            formDataToSend.append("thumbnail_url", formData.thumbnail_url);
         }
-        if (formData.big_image_url) {
-            formDataToSend.append("big_image_url", formData.big_image_url);
+        if (formData.video_url) {
+            formDataToSend.append("video_url", formData.video_url);
         }
 
-        
         try {
-            const response = await postAnime(formDataToSend);
+            const response = await postEpisode(formDataToSend);
             if (response) {
-                toast.success('Anime Created successfully!', {
+                toast.success('Episode Created successfully!', {    
                     style: {
                         backgroundColor: '#070720',
                         color: '#ffffff',
@@ -121,8 +98,8 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                     },
                 });
                 setTimeout(() => {
-                    router.push("/AdminList/1");
-                }, 2000); // 2000 milliseconds = 2 seconds
+                    router.push("/AdminList/2");
+                }, 2000);
             } else {
                 console.error('Error:', response);
                 toast.error('Error during Creation!', {
@@ -146,31 +123,29 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
             });
         }
     };
-    const handleAnimeUpdate = async (e: React.FormEvent) => {
+
+    const handleUpdateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const formDataToSend = new FormData();
-        if (anime?.id) {
-            formDataToSend.append("id", anime.id);
+        if (episode?.id) {
+            formDataToSend.append("id", episode.id);
         }
         formDataToSend.append("title", formData.title);
-        formDataToSend.append("description", formData.description);
+        formDataToSend.append("episodeNumber", formData.episodeNumber);
+        formDataToSend.append("idAnime", formData.idAnime);
         
-        // Correctly append genres from formData
-        formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
-        
-        if (formData.image_url) {
-            formDataToSend.append("image_url", formData.image_url);
+        if (formData.thumbnail_url) {
+            formDataToSend.append("thumbnail_url", formData.thumbnail_url);
         }
-        if (formData.big_image_url) {
-            formDataToSend.append("big_image_url", formData.big_image_url);
+        if (formData.video_url) {
+            formDataToSend.append("video_url", formData.video_url);
         }
 
-        
         try {
-            const response = await updateAnime(formDataToSend);
+            const response = await updateEpisode(formDataToSend);
             if (response) {
-                toast.success('Anime Updated successfully!', {
+                toast.success('Episode Updated successfully!', {
                     style: {
                         backgroundColor: '#070720',
                         color: '#ffffff',
@@ -179,8 +154,8 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                     },
                 });
                 setTimeout(() => {
-                    router.push("/AdminList/1");
-                }, 2000); // 2000 milliseconds = 2 seconds
+                    router.push("/AdminList/2");
+                }, 2000);
             } else {
                 console.error('Error:', response);
                 toast.error('Error during Update!', {
@@ -205,6 +180,38 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
         }
     };
 
+    const handleAnimeSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAnimeSearchQuery(e.target.value);
+        setShowResults(true); // Show results while typing
+    };
+
+    useEffect(() => {
+        const fetchSearchedAnimes = async () => {
+            if (searchAnimeQuery.trim()) {
+                try {
+                    const results = await getSearchedAnimes(searchAnimeQuery);
+                    setAnimes(results);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            } else {
+                setAnimes([]); // Clear results when the input is empty
+            }
+        };
+
+        const delayDebounceFn = setTimeout(() => {
+            fetchSearchedAnimes();
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchAnimeQuery]);
+
+    const handleAnimeSelect = (anime: Anime) => {
+        setFormData((prev) => ({ ...prev, idAnime: anime.id }));
+        setAnimeSearchQuery(anime.title); // Set the input to the selected anime title
+        setShowResults(false); // Hide results when an anime is selected
+    };
+
     // Redirect unauthorized users early
     if (!loading && (!userData || !userData.isAdmin)) {
         return (
@@ -214,7 +221,6 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
         );
     }
 
-    // If still loading user data, show a loading indicator
     if (loading) {
         return (
             <div className="bg-custom-blue-dark h-screen flex justify-center items-center">
@@ -229,20 +235,20 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                 <p></p>
             </div>
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
-                {anime ? "Editing Anime" : "New Anime"}
+                {episode ? "Editing Episode" : "New Episode"}
             </div>
             <div className="container mx-auto">
                 <div className="w-full max-w-4xl mx-auto mb-5 flex justify-between items-center">
-                    <Link href="/AdminList/1">
+                    <Link href="/AdminList/2">
                         <button className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600">
                             Back
                         </button>
                     </Link>
                 </div>
                 <form 
-                    onSubmit={anime ? handleAnimeUpdate : handleSubmit}
+                    onSubmit={episode ? handleUpdateSubmit : handleSubmit}
                     className="flex flex-col items-center gap-6 text-white"
-                    method="POST" // Changed to POST
+                    method="POST"
                     encType="multipart/form-data"
                 >
                     {/* Title Field */}
@@ -258,25 +264,37 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                         />
                     </div>
 
-                    {/* Description Field */}
+                    {/* Episode Number Field */}
                     <div className="w-full max-w-md">
-                        <label className="block mb-2 text-2xl">Description</label>
-                        <textarea
+                        <label className="block mb-2 text-2xl">Episode Number</label>
+                        <input
                             type="text"
-                            name="description"
-                            value={formData.description}
+                            name="episodeNumber"
+                            value={formData.episodeNumber}
                             onChange={handleChange}
-                            className="w-full h-32  px-4 py-2 bg-black text-white rounded"
+                            className="w-full px-4 py-2 bg-black text-white rounded"
                             required
+                        />
+                    </div>
+
+                    {/* Video Input */}
+                    <div className="w-full max-w-md">
+                        <label className="block mb-2 text-2xl">Video Episode</label>
+                        <input
+                            type="file"
+                            name="video_url"
+                            onChange={handleFileChange}
+                            className="w-full px-4 py-2 bg-black text-white rounded"
+                            accept="video/*"
                         />
                     </div>
 
                     {/* File Input */}
                     <div className="w-full max-w-md">
-                        <label className="block mb-2 text-2xl">Small Image Upload</label>
+                        <label className="block mb-2 text-2xl">Thumbnail Episode</label>
                         <input
                             type="file"
-                            name="image_url"
+                            name="thumbnail_url"
                             onChange={handleFileChange}
                             className="w-full px-4 py-2 bg-black text-white rounded"
                             accept="image/*"
@@ -290,46 +308,37 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                         </div>
                     )}
 
-                    {/* File Input */}
+                    {/* Anime Search Input */}
                     <div className="w-full max-w-md">
-                        <label className="block mb-2 text-2xl">Big Image Upload</label>
+                        <label className="block mb-2 text-2xl">Anime</label>
                         <input
-                            type="file"
-                            name="big_image_url"
-                            onChange={handleFileChange}
+                            type="text"
+                            value={searchAnimeQuery}
+                            onChange={handleAnimeSearchChange}
+                            onFocus={() => setShowResults(true)} // Show results on focus
                             className="w-full px-4 py-2 bg-black text-white rounded"
-                            accept="image/*"
+                            placeholder="Search Anime"
+                            required
                         />
-                    </div>
-
-                    {/* Image Preview */}
-                    {imagePreview2 && (
-                        <div className="w-full max-w-md">
-                            <img src={imagePreview2} alt="Preview" className="w-full mt-4" />
-                        </div>
-                    )}
-
-                    {/* Genre Checkboxes */}
-                    <div className="w-full max-w-md">
-                        <label className="block mb-2 text-2xl">Genres</label>
-                        <div className="flex flex-wrap gap-4">
-                            {categories.map((category) => (
-                                <div key={category.id} className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="genres"
-                                        id={category.id}
-                                        value={category.name}
-                                        checked={formData.genres.includes(category.name)}
-                                        onChange={handleCheckboxChange}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor={category.id} className="text-white">
-                                        {category.name} 
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Display the list of anime results */}
+                        {showResults && searchAnimeQuery && animes.length > 0 && (
+                            <ul className="bg-black text-white max-h-40 overflow-y-auto mt-2 rounded shadow-lg">
+                                {animes.map((anime) => (
+                                    <li
+                                        key={anime.id}
+                                        onClick={() => handleAnimeSelect(anime)}
+                                        className="flex items-center px-4 py-2 cursor-pointer hover:bg-red-500"
+                                    >
+                                        <img
+                                            src={anime.image_url}
+                                            alt={anime.title}
+                                            className="w-12 h-12 mr-2 rounded"
+                                        />
+                                        <span>{anime.title}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                     {/* Submit Button */}
@@ -337,7 +346,7 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                         type="submit"
                         className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
                     >
-                        {anime ? "Save Changes" : "Create Anime"}
+                        {episode ? "Save Changes" : "Create Episode"}
                     </button>
                     <div className="mt-16" /> {/* This adds space below the button */}
                 </form>
@@ -346,4 +355,4 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
     );
 };
 
-export default NewAnime;
+export default NewEpisode;

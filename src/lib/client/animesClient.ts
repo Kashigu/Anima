@@ -20,6 +20,16 @@ async function getAnimeById(id: string) {
   }
 }
 
+async function getEpisodeById(id: string) {
+  try {
+    const response = await axiosClient.get(`api/episodesServer?id=${id}`);
+    return response.data; // Directly return the data
+  } catch (error) {
+    console.error('Failed to fetch episode:', error);
+    return null;
+  }
+}
+
 async function getSearchedAnimes(search: string) {
   try {
     const response = await axiosClient.get(`api/animesServer?search=${search}`);
@@ -119,6 +129,37 @@ async function updateAnime(data: any) {
     return null;
   }
 }
+async function postEpisode(data: any) {
+  try {
+    const response = await axiosClient.post('api/episodesServer', data,{
+      headers: {
+      'Content-Type': 'multipart/form-data', 
+      },
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to post episode:', error);
+    return null;
+  }
+}
+
+async function updateEpisode(data: any) {
+  try {
+    const response = await axiosClient.put('api/episodesServer', data,{
+      headers: {
+      'Content-Type': 'multipart/form-data', 
+      },
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update episode:', error);
+    return null;
+  }
+}
+
 
 export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById,
-         getEpisodes, deleteAnime, deleteEpisode, postAnime, updateAnime, getSearchedAnimes, getSearchedEpisodes };
+         getEpisodes, deleteAnime, deleteEpisode, postAnime, updateAnime, getSearchedAnimes, getSearchedEpisodes,
+         postEpisode, updateEpisode, getEpisodeById};

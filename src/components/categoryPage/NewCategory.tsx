@@ -152,15 +152,9 @@ const NewCategory = ({ category }: CategoriesPageProps) => {
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                 <p></p>
             </div>
-            {category && (
             <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
-                Editing Category
+                {category ? "Editing Category" : "New Category"}
             </div>
-            )}
-            {!category && (<div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto pl-2 bg-black pb-2">
-                New Category
-            </div>
-            )}
             <div className="container mx-auto">
                 <div className="w-full max-w-4xl mx-auto mb-5 flex justify-between items-center">
                     <Link href="/AdminList/3">
@@ -189,22 +183,12 @@ const NewCategory = ({ category }: CategoriesPageProps) => {
                     </div>
 
                     {/* Submit Button */}
-                    {category && (
                     <button
                         type="submit"
                         className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
                     >
-                        Save Changes
+                        {category ? "Save Changes" : "Create Category"}
                     </button>
-                    )}
-                    {!category && (
-                         <button
-                         type="submit"
-                         className="bg-red-500 text-white font-bold px-4 py-2 rounded hover:bg-red-600"
-                     >
-                        Create Category
-                     </button>
-                    )}
 
                 </form>
             </div>
