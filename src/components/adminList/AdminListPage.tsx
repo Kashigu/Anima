@@ -38,7 +38,7 @@ function AdminListPage({ id }: { id: string }) {
     const [searchCategoryQuery, setCategorySearchQuery] = useState('');
 
     {/* Pagination */}
-    const itemsPerPage = 4;
+    const itemsPerPage = 12;
     const [resetPagination, setResetPagination] = useState(false);
     const { currentPage: animeCurrentPage, totalPages: animeTotalPages, displayedItems: displayedAnimes, goToNextPage: goToNextAnimePage, goToPreviousPage: goToPreviousAnimePage } = usePagination(animes, itemsPerPage , resetPagination);
     const { currentPage: userCurrentPage, totalPages: userTotalPages, displayedItems: displayedUsers, goToNextPage: goToNextUserPage, goToPreviousPage: goToPreviousUserPage } = usePagination(users, itemsPerPage, resetPagination);
