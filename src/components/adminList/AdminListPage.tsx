@@ -8,6 +8,8 @@ import toast from "react-hot-toast";
 import useUser from "@/app/hooks/useUser";
 import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes, getSearchedEpisodes } from "@/lib/client/animesClient";
 import { deleteCategory, getCategories, getSearchedCategory } from "@/lib/client/categories";
+import usePagination from "@/app/hooks/usePagination";
+import PaginationControls from "../PaginationControls";
 
 
 function AdminListPage({ id }: { id: string }) {
@@ -34,7 +36,15 @@ function AdminListPage({ id }: { id: string }) {
     const [isCategoryDeleteModal, setCategoryDelete] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null); 
     const [searchCategoryQuery, setCategorySearchQuery] = useState('');
-    
+
+    {/* Pagination */}
+    const itemsPerPage = 4;
+    const [resetPagination, setResetPagination] = useState(false);
+    const { currentPage: animeCurrentPage, totalPages: animeTotalPages, displayedItems: displayedAnimes, goToNextPage: goToNextAnimePage, goToPreviousPage: goToPreviousAnimePage } = usePagination(animes, itemsPerPage , resetPagination);
+    const { currentPage: userCurrentPage, totalPages: userTotalPages, displayedItems: displayedUsers, goToNextPage: goToNextUserPage, goToPreviousPage: goToPreviousUserPage } = usePagination(users, itemsPerPage, resetPagination);
+    const { currentPage: episodeCurrentPage, totalPages: episodeTotalPages, displayedItems: displayedEpisodes, goToNextPage: goToNextEpisodePage, goToPreviousPage: goToPreviousEpisodePage } = usePagination(episodes, itemsPerPage, resetPagination);
+    const { currentPage: categoryCurrentPage, totalPages: categoryTotalPages, displayedItems: displayedCategories, goToNextPage: goToNextCategoryPage, goToPreviousPage: goToPreviousCategoryPage } = usePagination(categories, itemsPerPage, resetPagination);
+
 
     {/* Logged User*/ }
     const { userData, loading } = useUser();
@@ -60,7 +70,7 @@ function AdminListPage({ id }: { id: string }) {
         fetchData();
     }, []);
 
-    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
+    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch, setResetPagination) => {
         useEffect(() => {
             const delayDebounceFn = setTimeout(async () => {
                 if (query.trim()) {
@@ -68,6 +78,7 @@ function AdminListPage({ id }: { id: string }) {
                         const results = await fetchFunction(query);
                         if (results) {
                             setData(results);
+                            setResetPagination(true); // Reset pagination flag after fetching new results
                         }
                     } catch (error) {
                         console.error('Error fetching data:', error);
@@ -75,19 +86,21 @@ function AdminListPage({ id }: { id: string }) {
                 } else {
                     const defaultData = await defaultDataFetch();
                     setData(defaultData || []);
+                    setResetPagination(false); // Also reset when default data is fetched
                 }
             }, 300);
     
             return () => clearTimeout(delayDebounceFn);
-        }, [query, fetchFunction, setData, defaultDataFetch]);
+        }, [query, fetchFunction, setData, defaultDataFetch, setResetPagination]);
     };
+    
     
     // Using the useDebouncedSearch hook for each query
     
-    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes);
-    useDebouncedSearch(searchCategoryQuery, getSearchedCategory, setCategories, getCategories);
-    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes);
-    useDebouncedSearch(searchUserQuery, getSearchedUsers, setUsers, getUsers);
+    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes, setResetPagination);
+    useDebouncedSearch(searchCategoryQuery, getSearchedCategory, setCategories, getCategories, setResetPagination);
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes, setResetPagination);
+    useDebouncedSearch(searchUserQuery, getSearchedUsers, setUsers, getUsers, setResetPagination);
     
     const handleDeleteUserSubmit = async () => {
         if (!userToDelete) return;
@@ -224,17 +237,21 @@ function AdminListPage({ id }: { id: string }) {
 
     const handleAnimeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setAnimeSearchQuery(e.target.value);
+        setResetPagination(true);
     };
     const handleCategorySearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setCategorySearchQuery(e.target.value);
+        setResetPagination(true);
     };
 
     const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setEpisodeSearchQuery(e.target.value);
+        setResetPagination(true);
     };
 
     const handleUserSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setUserSearchQuery(e.target.value);
+        setResetPagination(true);
     }
 
 
@@ -348,184 +365,217 @@ function AdminListPage({ id }: { id: string }) {
                 
                 <div className="list-container w-full max-w-4xl mx-auto">
                     {id == '1' && (
-                        <table className="w-full text-white">
-                            <thead className="bg-gray-800">
-                                <tr>
-                                    <th className="px-4 py-2 text-left">ID</th>
-                                    <th className="px-4 py-2 text-left">Title</th>
-                                    <th className="px-4 py-2 text-left">Small Image</th>
-                                    <th className="px-4 py-2 text-left">Edit</th>
-                                    <th className="px-4 py-2 text-left">Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {animes.map((anime) => (
-                                    <tr key={anime.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
-                                        <td className="px-4 py-2">{anime.id}</td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/AnimesPage/${anime.id}`} className="text-white hover:text-red-500">
-                                                {anime.title}
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <img
-                                                src={`${anime?.image_url}`}
-                                                alt={anime.title}
-                                                className="w-16 h-16 object-cover"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/Animes/SettingAnimes/${anime.id}`}>
-                                            <button className="text-white hover:text-red-500">
-                                                <FontAwesomeIcon icon={faEdit}/>
-                                            </button>
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <button
-                                                className="text-white hover:text-red-500"
-                                                onClick={() => openDeleteAnimeModal(anime.id)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </td>
+                        <div>
+                            <table className="w-full text-white">
+                                <thead className="bg-gray-800">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">ID</th>
+                                        <th className="px-4 py-2 text-left">Title</th>
+                                        <th className="px-4 py-2 text-left">Small Image</th>
+                                        <th className="px-4 py-2 text-left">Edit</th>
+                                        <th className="px-4 py-2 text-left">Delete</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {displayedAnimes.map((anime) => (
+                                        <tr key={anime.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                            <td className="px-4 py-2">{anime.id}</td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/AnimesPage/${anime.id}`} className="text-white hover:text-red-500">
+                                                    {anime.title}
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <img
+                                                    src={`${anime?.image_url}`}
+                                                    alt={anime.title}
+                                                    className="w-16 h-16 object-cover"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/Animes/SettingAnimes/${anime.id}`}>
+                                                <button className="text-white hover:text-red-500">
+                                                    <FontAwesomeIcon icon={faEdit}/>
+                                                </button>
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <button
+                                                    className="text-white hover:text-red-500"
+                                                    onClick={() => openDeleteAnimeModal(anime.id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <PaginationControls
+                                currentPage={animeCurrentPage}
+                                totalPages={animeTotalPages}
+                                onNext={goToNextAnimePage}
+                                onPrevious={goToPreviousAnimePage}
+                            />
+                        </div>
                     )}
                     {id == '2' && (
-                        <table className="w-full text-white">
-                            <thead className="bg-gray-800">
-                                <tr>
-                                    <th className="px-4 py-2 text-left">ID</th>
-                                    <th className="px-4 py-2 text-left">Title</th>
-                                    <th className="px-4 py-2 text-left">Episode Number</th>
-                                    <th className="px-4 py-2 text-left">Thumbnail</th>
-                                    <th className="px-4 py-2 text-left">Edit</th>
-                                    <th className="px-4 py-2 text-left">Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {episodes.map((episode) => (
-                                    <tr key={episode.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
-                                        <td className="px-4 py-2">{episode.id}</td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="text-white hover:text-red-500">
-                                                {episode.title}
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            {episode.episodeNumber}
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <img
-                                                src={`${episode?.thumbnail_url}`}
-                                                alt={episode.title}
-                                                className="w-16 h-16 object-cover"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/Episodes/SettingEpisodes/${episode.id}`} className="text-white hover:text-red-500">
-                                            <button className="text-white hover:text-red-500">
-                                                <FontAwesomeIcon icon={faEdit}/>
-                                            </button>
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <button
-                                                className="text-white hover:text-red-500"
-                                                onClick={() => openDeleteEpisodeModal(episode.id)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </td>
+                        <div>
+                            <table className="w-full text-white">
+                                <thead className="bg-gray-800">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">ID</th>
+                                        <th className="px-4 py-2 text-left">Title</th>
+                                        <th className="px-4 py-2 text-left">Episode Number</th>
+                                        <th className="px-4 py-2 text-left">Thumbnail</th>
+                                        <th className="px-4 py-2 text-left">Edit</th>
+                                        <th className="px-4 py-2 text-left">Delete</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {displayedEpisodes.map((episode) => (
+                                        <tr key={episode.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                            <td className="px-4 py-2">{episode.id}</td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="text-white hover:text-red-500">
+                                                    {episode.title}
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                {episode.episodeNumber}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <img
+                                                    src={`${episode?.thumbnail_url}`}
+                                                    alt={episode.title}
+                                                    className="w-16 h-16 object-cover"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/Episodes/SettingEpisodes/${episode.id}`} className="text-white hover:text-red-500">
+                                                <button className="text-white hover:text-red-500">
+                                                    <FontAwesomeIcon icon={faEdit}/>
+                                                </button>
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <button
+                                                    className="text-white hover:text-red-500"
+                                                    onClick={() => openDeleteEpisodeModal(episode.id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <PaginationControls
+                                currentPage={episodeCurrentPage}
+                                totalPages={episodeTotalPages}
+                                onNext={goToNextEpisodePage}
+                                onPrevious={goToPreviousEpisodePage}
+                            />
+                        </div>
                     )}
                     {id == '3' && (
-                        <table className="w-full text-white">
-                            <thead className="bg-gray-800">
-                                <tr>
-                                    <th className="px-4 py-2 text-left">ID</th>
-                                    <th className="px-4 py-2 text-left">Name</th>
-                                    <th className="px-4 py-2 text-left">Edit</th>
-                                    <th className="px-4 py-2 text-left">Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categories.map((category) => (
-                                    <tr key={category.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
-                                        <td className="px-4 py-2">{category.id}</td>
-                                        <td className="px-4 py-2">
-                                            {category.name}
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/Categories/SettingCategories/${category.id}`}>
-                                            <button className="text-white hover:text-red-500">
-                                                <FontAwesomeIcon icon={faEdit}/>
-                                            </button>
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <button
-                                                className="text-white hover:text-red-500"
-                                                onClick={() => openDeleteCategoryModal(category.id)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </td>
+                        <div>
+                            <table className="w-full text-white">
+                                <thead className="bg-gray-800">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">ID</th>
+                                        <th className="px-4 py-2 text-left">Name</th>
+                                        <th className="px-4 py-2 text-left">Edit</th>
+                                        <th className="px-4 py-2 text-left">Delete</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {displayedCategories.map((category) => (
+                                        <tr key={category.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                            <td className="px-4 py-2">{category.id}</td>
+                                            <td className="px-4 py-2">
+                                                {category.name}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/Categories/SettingCategories/${category.id}`}>
+                                                <button className="text-white hover:text-red-500">
+                                                    <FontAwesomeIcon icon={faEdit}/>
+                                                </button>
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <button
+                                                    className="text-white hover:text-red-500"
+                                                    onClick={() => openDeleteCategoryModal(category.id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <PaginationControls
+                                currentPage={categoryCurrentPage}
+                                totalPages={categoryTotalPages}
+                                onNext={goToNextCategoryPage}
+                                onPrevious={goToPreviousCategoryPage}
+                            />
+                        </div>
+                            
                     )}
                     {id == '4' && (
-                        <table className="w-full text-white">
-                            <thead className="bg-gray-800">
-                                <tr>
-                                    <th className="px-4 py-2 text-left">ID</th>
-                                    <th className="px-4 py-2 text-left">Name</th>
-                                    <th className="px-4 py-2 text-left">Image</th>
-                                    <th className="px-4 py-2 text-left">Block/Unblock</th>
-                                    <th className="px-4 py-2 text-left">Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map((user) => (
-                                    <tr key={user.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
-                                        <td className="px-4 py-2">{user.id}</td>
-                                        <td className="px-4 py-2">
-                                            <Link href={`/Profile/${user.id}`} className="text-blue-400 hover:underline">
-                                                {user.name}
-                                            </Link>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <img
-                                                src={`/${user?.image_url}`}
-                                                alt={user.name}
-                                                className="w-16 h-16 object-cover rounded-full"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <button className="text-white hover:text-red-500">
-                                                {user.isBlocked ? 'Unblock' : 'Block'}
-                                            </button>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <button
-                                                className="text-white hover:text-red-500"
-                                                onClick={() => openDeleteModal(user.id)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </td>
+                        <div>
+                            <table className="w-full text-white">
+                                <thead className="bg-gray-800">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">ID</th>
+                                        <th className="px-4 py-2 text-left">Name</th>
+                                        <th className="px-4 py-2 text-left">Image</th>
+                                        <th className="px-4 py-2 text-left">Block/Unblock</th>
+                                        <th className="px-4 py-2 text-left">Delete</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {displayedUsers.map((user) => (
+                                        <tr key={user.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
+                                            <td className="px-4 py-2">{user.id}</td>
+                                            <td className="px-4 py-2">
+                                                <Link href={`/Profile/${user.id}`} className="text-blue-400 hover:underline">
+                                                    {user.name}
+                                                </Link>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <img
+                                                    src={`/${user?.image_url}`}
+                                                    alt={user.name}
+                                                    className="w-16 h-16 object-cover rounded-full"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <button className="text-white hover:text-red-500">
+                                                    {user.isBlocked ? 'Unblock' : 'Block'}
+                                                </button>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <button
+                                                    className="text-white hover:text-red-500"
+                                                    onClick={() => openDeleteModal(user.id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <PaginationControls
+                                currentPage={userCurrentPage}
+                                totalPages={userTotalPages}
+                                onNext={goToNextUserPage}
+                                onPrevious={goToPreviousUserPage}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
