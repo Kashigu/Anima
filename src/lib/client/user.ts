@@ -117,5 +117,27 @@ async function deleteUser(id: string) {
   }
 }
 
+async function blockUser(id: string, isBlocked: boolean) {
+  try {
+    const response = await axiosClient.put('api/userServer', {
+      action: 'block', 
+      data: {           
+        userId: id,
+        isBlocked: isBlocked
+      }
+    });
 
-export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers, deleteUser, getSearchedUsers };
+      return response.data;
+  } catch (error: any) {
+      if (error.response) {
+          console.error(`Failed to update user status: ${error.response.data.message}`);
+      } else {
+          console.error('Failed to update user status:', error.message || error);
+      }
+      return { success: false, error: error.message || 'Failed to update user status' };
+  }
+}
+
+
+
+export { postUser, signIn, getUserWithToken , getUserById, updateUser, getUser, getUsers, deleteUser, getSearchedUsers , blockUser};

@@ -1,4 +1,4 @@
-import { deleteUser, getSearchedUsers, getUsers } from "@/lib/client/user";
+import { blockUser, deleteUser, getSearchedUsers, getUsers } from "@/lib/client/user";
 import { Anime, Category, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { SetStateAction, use, useEffect, useState } from "react";
@@ -252,6 +252,50 @@ function AdminListPage({ id }: { id: string }) {
     const handleUserSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setUserSearchQuery(e.target.value);
         setResetPagination(true);
+    }
+
+    const handleBlockUser = async (userId: string, isBlocked: boolean) => {
+        try {
+            // Call the blockUser function with the userId and new blocked state
+            const response = await blockUser(userId, !isBlocked);
+    
+            // Ensure the response contains the updated user object
+            if (response && response.id) { // Check if the response has the expected user ID
+                toast.success(`User ${response.isBlocked ? 'blocked' : 'unblocked'} successfully!`, {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+    
+                // Update the users state
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user.id === userId ? { ...user, isBlocked: response.isBlocked } : user
+                    )
+                );
+            } else {
+                toast.error('User status update failed.', {
+                    style: {
+                        backgroundColor: '#070720',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        border: '1px solid #ffffff',
+                    },
+                });
+            }
+        } catch (error) {
+            toast.error('Failed to block or unblock user.', {
+                style: {
+                    backgroundColor: '#070720',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                    border: '1px solid #ffffff',
+                },
+            });
+        }
     }
 
 
@@ -553,7 +597,8 @@ function AdminListPage({ id }: { id: string }) {
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
-                                                <button className="text-white hover:text-red-500">
+                                                <button className="text-white hover:text-red-500" 
+                                                onClick={() =>handleBlockUser(user.id, !user.isBlocked)}>
                                                     {user.isBlocked ? 'Unblock' : 'Block'}
                                                 </button>
                                             </td>

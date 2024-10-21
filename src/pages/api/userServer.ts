@@ -109,7 +109,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     req.on('end', async () => {
       try {
         req.body = JSON.parse(bodyData); // Parse the accumulated data as JSON
-        console.log('action:', req.body);
         const { action, data } = req.body;
         
         if (action === 'signup') {
@@ -183,39 +182,81 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       }
     });
   } else if (req.method === 'PUT') {
-    app.use(express.json());
-    const uploadHandler = upload.single('image_url');
 
-    uploadHandler(req as any, res as any, async (err: any) => {
-      if (err) {
-        console.error('Error uploading image:', err);
-        return res.status(500).json({ error: 'Failed to upload image' });
-      }
-      
-      const { id, name, email, password, description } = req.body;
-      const image_url = req.file ? `images/${req.file.filename}` : req.body.existing_image_url;
+    let DATA= '';
 
+    // Manually parse the JSON body for POST requests
+    req.on('data', (chunk) => {
+      DATA += chunk.toString(); // Accumulate data chunks
+    });
+
+    req.on('end', async () => {
       try {
-        const updatedUser = await UserModel.findOneAndUpdate(
-          { id: id },
-          {
-            name,
-            email,
-            description,
-            ...(image_url && { image_url }),
-            password: password ? await bcrypt.hash(password, 10) : undefined,
-          },
-          { new: true }
-        );
+        req.body = JSON.parse(DATA); // Parse the accumulated data as JSON
+        const { action, data } = req.body;
+        const { userId, isBlocked } = data; // Extract userId and isBlocked from data
 
-        if (!updatedUser) {
-          return res.status(404).json({ error: 'User not found' });
+        if (action === 'block') {
+            try {
+                const user = await UserModel.findOne({ id: userId });
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+
+                const updatedUser = await UserModel.findOneAndUpdate(
+                    { id: userId },
+                    { isBlocked: !isBlocked }, 
+                    { new: true }
+                );
+
+                return res.status(200).json(updatedUser);
+            } catch (err) {
+                console.error('Error updating user status:', err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+
+        }else{
+
+
+          app.use(express.json());
+          const uploadHandler = upload.single('image_url');
+
+          uploadHandler(req as any, res as any, async (err: any) => {
+            if (err) {
+              console.error('Error uploading image:', err);
+              return res.status(500).json({ error: 'Failed to upload image' });
+            }
+            
+            const { id, name, email, password, description } = req.body;
+            const image_url = req.file ? `images/${req.file.filename}` : req.body.existing_image_url;
+
+            try {
+              const updatedUser = await UserModel.findOneAndUpdate(
+                { id: id },
+                {
+                  name,
+                  email,
+                  description,
+                  ...(image_url && { image_url }),
+                  password: password ? await bcrypt.hash(password, 10) : undefined,
+                },
+                { new: true }
+              );
+
+              if (!updatedUser) {
+                return res.status(404).json({ error: 'User not found' });
+              }
+
+              return res.status(200).json(updatedUser);
+            } catch (err) {
+              console.error('Error updating user:', err);
+              return res.status(500).json({ error: 'Internal Server Error' });
+            }
+          });
         }
-
-        return res.status(200).json(updatedUser);
       } catch (err) {
-        console.error('Error updating user:', err);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error parsing request body:', err);
+        return res.status(400).json({ error: 'Invalid request body' });
       }
     });
   } else if (req.method === 'DELETE'){
