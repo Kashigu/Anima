@@ -541,7 +541,7 @@ function AdminListPage({ id }: { id: string }) {
                                         <tr key={user.id} className="bg-black border-b border-gray-700 hover:bg-gray-900">
                                             <td className="px-4 py-2">{user.id}</td>
                                             <td className="px-4 py-2">
-                                                <Link href={`/Profile/${user.id}`} className="text-blue-400 hover:underline">
+                                                <Link href={`/Profile/${user.id}`} className="text-white hover:text-red-500">
                                                     {user.name}
                                                 </Link>
                                             </td>

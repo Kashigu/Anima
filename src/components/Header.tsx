@@ -100,16 +100,23 @@ function Header() {
           
   
           setUserData(user); // Store user data
-          toast.success('Login successful!', {
-            style: {
-              backgroundColor: '#070720',
-              color: '#ffffff',
-              fontWeight: 'bold',
-              border: '1px solid #ffffff',
-            },
-          });
+          if (user.isBlocked) {
+            handleLogoutSubmit('Your account is blocked. You have been logged out.','error');
+            return;
+          }
+          else{
+            toast.success('Login successful!', {
+              style: {
+                backgroundColor: '#070720',
+                color: '#ffffff',
+                fontWeight: 'bold',
+                border: '1px solid #ffffff',
+              },
+            });
+            sessionStorage.setItem('user', JSON.stringify(user));
+          }
 
-          sessionStorage.setItem('user', JSON.stringify(user));
+          
           
           setLogin(false); // Close modal after successful login
         } else {
@@ -139,26 +146,37 @@ function Header() {
     }
   };
 
-  const handleLogoutSubmit = () => {
+  const handleLogoutSubmit = (message = 'Logout successful!', type = 'success') => {
     localStorage.removeItem('jwtToken'); // Remove token from localStorage
     Cookies.remove('authToken'); // Remove token from cookies
     setUserData(null); // Clear user data
     setLogout(false); // Close modal after successful logout
-    router.push('/');
-    toast.success('Logout successful!', {
-      style: {
-        backgroundColor: '#070720',
-        color: '#ffffff',
-        fontWeight: 'bold',
-        border: '1px solid #ffffff',
-      },
-    });
+    router.push('/'); // Redirect to homepage
+  
+    if (type === 'error') {
+      toast.error(message, { // Display the toast as an error
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+    } else {
+      toast.success(message, { // Display the toast as a success
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+    }
   };
   
-  
-  userAuth(setUserData); // Call userAuth to check authentication status
-  
-  
+ 
+  userAuth(setUserData); 
+
   return (
     <>
     <Toaster />
