@@ -335,7 +335,7 @@ function Header() {
           <div className="flex justify-center ">
             <button
               className="bg-red-500 text-white px-4 font-bold py-2 rounded hover:bg-red-600"
-              onClick={handleLogoutSubmit}
+              onClick={() => handleLogoutSubmit('Logout successful!', 'success')}
             >
               Logout
             </button>
