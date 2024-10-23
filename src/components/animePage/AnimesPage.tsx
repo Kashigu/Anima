@@ -32,14 +32,14 @@ function AnimesPage({ anime }: AnimesPageProps) {
   return (
     <div className="container mx-auto bg-custom-blue-dark">
       {/* Title in the center */}
-      <div className="flex flex-col mb-8 w-full justify-center items-center text-4xl text-white text-center font-bold pt-5 ">
+      <div className="grid grid-cols-1 gap-8 w-full justify-items-center text-4xl text-white text-center font-bold pt-5 mb-8">
         <Link href={`/AnimesPage/${anime.id}`}>{anime.title}</Link>
       </div>
-  
-      {/* Flex container for image on the left and description on the right */}
-      <div className="flex flex-row justify-center items-start gap-12 w-full text-white">
+
+      {/* Grid container for image on the left and description on the right */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full  text-white">
         {/* Image on the left */}
-        <div className="relative w-[300px] h-[400px]">
+        <div className="relative w-[300px] h-[400px] justify-self-end">
           <Image
             src={anime.image_url}
             alt={anime.title}
@@ -49,7 +49,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
-  
+
         {/* Description on the right */}
         <div className="flex flex-col max-w-lg text-lg">
           <h2 className="text-2xl mb-4 font-bold">Description</h2>

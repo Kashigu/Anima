@@ -24,8 +24,8 @@ const ProfilePage = ({ userId }: UserPageProps) => {
         {userId?.name}
       </div>
       <div className="container mx-auto">
-        <div className="flex flex-row justify-center items-start gap-12 w-full text-white">
-          <div className="relative w-[250px] h-[250px] bg-black">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full text-white">
+          <div className="relative w-[250px] h-[250px] justify-self-end">
             {/* Display user image */}
             <img
               src={`/${userId?.image_url}`}
