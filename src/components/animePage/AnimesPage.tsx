@@ -56,7 +56,20 @@ function AnimesPage({ anime }: AnimesPageProps) {
           <p>{anime.description}</p>
         </div>
       </div>
-      
+      <div className="flex flex-wrap justify-center mt-8 ">
+        <h2 className="text-2xl mb-4 font-bold">Genres</h2>
+      </div>
+      {/* Genres */}
+      <div className="flex flex-wrap mt-2 justify-center space-x-2">
+        {anime.genres.slice(0,9).map((genres, index) => (
+            <span
+            key={index}
+            className="bg-black px-2 py-1 rounded text-white text-sm mb-2"
+            >
+            {genres}
+            </span>
+        ))}
+      </div>
       <div className="flex flex-col w-full mt-6 text-white text-4xl font-bold justify-start pl-2 bg-black pb-2 mb-12">
         Episodes
       </div>
