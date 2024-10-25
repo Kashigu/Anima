@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getEpisodes } from '@/lib/client/animesClient';
+import { getEpisodes, getSearchedEpisodes } from '@/lib/client/animesClient';
 import Link from 'next/link';
 import { Episode } from '@/lib/interfaces/interface';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 function Episodes() {
     // Define state to store anime data state
     const [Episodes, setEpisodes] = useState<Episode[]>([]);
+    const [searchEpisodeQuery, setEpisodeSearchQuery] = useState('');
+
     
 
     
@@ -20,14 +24,55 @@ function Episodes() {
         gettingEpisodes(); 
     }, []);
 
+
+    const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setEpisodeSearchQuery(e.target.value);
+      };
+
+    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
+        useEffect(() => {
+            const delayDebounceFn = setTimeout(async () => {
+                if (query.trim()) {
+                    try {
+                        const results = await fetchFunction(query);
+                        if (results) {
+                            setData(results);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching data:', error);
+                    }
+                } else {
+                    const defaultData = await defaultDataFetch();
+                    setData(defaultData || []);
+                }
+            }, 300);
+    
+            return () => clearTimeout(delayDebounceFn);
+        }, [query, fetchFunction, setData, defaultDataFetch]);
+      };
+    
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes);
+
     return (
         <>
             <div className="container mx-auto h-screen bg-custom-blue-dark">
                 <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
                     <p></p>
                 </div>
-                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start container mx-auto  pl-2 bg-black pb-2 ">
-                    Latest Releases
+                <div className="space-x-12 flex items-center relative mb-12 w-full text-white font-bold container mx-auto pl-2 bg-black pb-2 justify-between">
+                    <div className='text-4xl'>Latest Releases</div>
+                    <div className='relative w-96'>
+                        <input
+                            type="text"
+                            placeholder="Search Anime"
+                            className="bg-black rounded-full py-1 px-4 pr-10 text-white border-b-2 w-full"
+                            value={searchEpisodeQuery}
+                            onChange={handleEpisodeSearchChange}
+                        />
+                        <button className="text-white hover:text-red-500 absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <FontAwesomeIcon icon={faSearch} />
+                        </button>
+                    </div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark">
                     {Episodes.map((episode) => (
