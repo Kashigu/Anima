@@ -10,6 +10,7 @@ import { Anime, User } from '@/lib/interfaces/interface';
 import userAuth from '@/app/hooks/useAuth'; 
 import Cookies from 'js-cookie';
 import { getAnimes, getSearchedAnimes } from '@/lib/client/animesClient';
+import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
 
 
 function Header() {
@@ -187,31 +188,8 @@ function Header() {
     setSearchDropdownOpen(true); // Open dropdown when typing
   };
 
-  const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (query.trim()) {
-                try {
-                    const results = await fetchFunction(query);
-                    if (results) {
-                        setData(results);
-                    }
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            } else {
-                const defaultData = await defaultDataFetch();
-                setData(defaultData || []);
-            }
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [query, fetchFunction, setData, defaultDataFetch]);
-  };
-
   useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes);
   
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Anime } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
+import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
+import { set } from 'mongoose';
 
 interface AnimesProps {
     showFeature: boolean; 
@@ -15,6 +17,10 @@ function Animes({ showFeature }: AnimesProps) {
     const [currentAnimeIndex, setCurrentAnimeIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [searchAnimeQuery, setAnimeSearchQuery] = useState('');
+
+    {/* Pagination */}
+    const itemsPerPage = 12;
+    const [resetPagination, setResetPagination] = useState(false);
 
     useEffect(() => {
         async function gettingAnimes() {
@@ -32,30 +38,8 @@ function Animes({ showFeature }: AnimesProps) {
     const handleAnimeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setAnimeSearchQuery(e.target.value);
       };
-
-    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
-        useEffect(() => {
-            const delayDebounceFn = setTimeout(async () => {
-                if (query.trim()) {
-                    try {
-                        const results = await fetchFunction(query);
-                        if (results) {
-                            setData(results);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching data:', error);
-                    }
-                } else {
-                    const defaultData = await defaultDataFetch();
-                    setData(defaultData || []);
-                }
-            }, 300);
     
-            return () => clearTimeout(delayDebounceFn);
-        }, [query, fetchFunction, setData, defaultDataFetch]);
-      };
-    
-    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes);
+    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes, setResetPagination);
 
     const scroll = (direction: 'left' | 'right') => {
         setCurrentAnimeIndex((prevIndex) => {

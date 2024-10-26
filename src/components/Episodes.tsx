@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { Episode } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
 
 function Episodes() {
     // Define state to store anime data state
     const [Episodes, setEpisodes] = useState<Episode[]>([]);
     const [searchEpisodeQuery, setEpisodeSearchQuery] = useState('');
 
-    
-
-    
+    {/* Pagination */}
+    const itemsPerPage = 12;
+    const [resetPagination, setResetPagination] = useState(false);
     useEffect(() => {
         async function gettingEpisodes() { 
             const data = await getEpisodes(); 
@@ -28,30 +29,9 @@ function Episodes() {
     const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setEpisodeSearchQuery(e.target.value);
       };
-
-    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch) => {
-        useEffect(() => {
-            const delayDebounceFn = setTimeout(async () => {
-                if (query.trim()) {
-                    try {
-                        const results = await fetchFunction(query);
-                        if (results) {
-                            setData(results);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching data:', error);
-                    }
-                } else {
-                    const defaultData = await defaultDataFetch();
-                    setData(defaultData || []);
-                }
-            }, 300);
     
-            return () => clearTimeout(delayDebounceFn);
-        }, [query, fetchFunction, setData, defaultDataFetch]);
-      };
-    
-    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes);
+    {/* Debounce */}
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes , setResetPagination);
 
     return (
         <>

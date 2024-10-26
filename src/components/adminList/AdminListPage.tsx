@@ -10,6 +10,7 @@ import { deleteAnime, deleteEpisode, getAnimes, getEpisodes, getSearchedAnimes, 
 import { deleteCategory, getCategories, getSearchedCategory } from "@/lib/client/categories";
 import usePagination from "@/app/hooks/usePagination";
 import PaginationControls from "../PaginationControls";
+import useDebouncedSearch from "@/app/hooks/useDebounceSearch";
 
 
 function AdminListPage({ id }: { id: string }) {
@@ -70,30 +71,6 @@ function AdminListPage({ id }: { id: string }) {
         fetchData();
     }, []);
 
-    const useDebouncedSearch = (query, fetchFunction, setData, defaultDataFetch, setResetPagination) => {
-        useEffect(() => {
-            const delayDebounceFn = setTimeout(async () => {
-                if (query.trim()) {
-                    try {
-                        const results = await fetchFunction(query);
-                        if (results) {
-                            setData(results);
-                            setResetPagination(true); // Reset pagination flag after fetching new results
-                        }
-                    } catch (error) {
-                        console.error('Error fetching data:', error);
-                    }
-                } else {
-                    const defaultData = await defaultDataFetch();
-                    setData(defaultData || []);
-                    setResetPagination(false); // Also reset when default data is fetched
-                }
-            }, 300);
-    
-            return () => clearTimeout(delayDebounceFn);
-        }, [query, fetchFunction, setData, defaultDataFetch, setResetPagination]);
-    };
-    
     
     // Using the useDebouncedSearch hook for each query
     
