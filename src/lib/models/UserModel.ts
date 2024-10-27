@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
   image_url: { type: String, required: false },
   description: { type: String, required: false },
   isBlocked: { type: Boolean, default: false },
+  idStatus: { type: String, required: true },
 }, { collection: 'users' });
 
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
