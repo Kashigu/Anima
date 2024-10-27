@@ -213,11 +213,7 @@ function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const Search = () => {
-    router.push(`/Animes/`);
-  };
- 
+  
   userAuth(setUserData); 
 
   return (
@@ -250,7 +246,7 @@ function Header() {
             onChange={handleAnimeSearchChange}
             onFocus={() => setSearchDropdownOpen(true)}
           />
-          <button className="text-white hover:text-red-500 absolute right-3 top-1/2 transform -translate-y-1/2" onClick={Search}>
+          <button className="text-white hover:text-red-500 absolute right-3 top-1/2 transform -translate-y-1/2">
             <FontAwesomeIcon icon={faSearch} />
           </button>
 
