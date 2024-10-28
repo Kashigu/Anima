@@ -33,6 +33,14 @@ export interface User {
   isBlocked: boolean;
 }
 
+export interface Status {
+  _id: mongoose.Schema.Types.ObjectId;
+  id: string;
+  idAnime: string;
+  idUser: string;
+  status: string;
+}
+
 export interface Category {
   _id: mongoose.Schema.Types.ObjectId;
   id: string;

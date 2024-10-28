@@ -15,6 +15,7 @@ function Episodes() {
     {/* Pagination */}
     const itemsPerPage = 12;
     const [resetPagination, setResetPagination] = useState(false);
+    
     useEffect(() => {
         async function gettingEpisodes() { 
             const data = await getEpisodes(); 

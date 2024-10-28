@@ -8,6 +8,6 @@ const StatusSchema = new mongoose.Schema({
   statu: { type: String, required: true },
 }, { collection: 'status' }); // Explicitly specify collection name if needed
 
-const StatusModel = mongoose.models.Statu || mongoose.model('Status', StatusSchema);
+const StatusModel = mongoose.models.Status || mongoose.model('Status', StatusSchema);
 
 export default StatusModel;

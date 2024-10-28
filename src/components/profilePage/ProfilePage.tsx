@@ -1,11 +1,65 @@
 "use client";
-import { User } from "@/lib/interfaces/interface";
+import { getStatusByUserId } from "@/lib/client/status";
+import { Status, User } from "@/lib/interfaces/interface";
+import { useEffect, useState } from "react";
 
 interface UserPageProps {
   userId: User | null;
 }
 
 const ProfilePage = ({ userId }: UserPageProps) => {
+  const [statusCounts, setStatusCounts] = useState({
+    "Completed": 0,
+    "Watching": 0,
+    "On Hold": 0,
+    "Dropped": 0,
+    "Plan to Watch": 0,
+    "Total Entries": 0,
+    "Rewatched": 0,
+    "Episodes": 0,
+    "Favourites": 0,
+    "Likes": 0,
+  });
+
+  useEffect(() => {
+    async function gettingStatus() {
+      if (userId && userId.id) {
+        const data = await getStatusByUserId(userId.id);
+        console.log(data);
+  
+        // Count each status type
+        const counts = data.reduce((acc: { [x: string]: number; }, stat: { status: any; }) => {
+          const statusType = stat.status; // using `status` instead of `statusName`
+  
+          // Initialize the count for this status type if it doesn't exist
+          if (!(statusType in acc)) {
+            acc[statusType] = 0;
+          }
+  
+          // Increment the count for this status type
+          acc[statusType] += 1;
+          acc["Total Entries"] += 1;
+  
+          return acc;
+        }, {
+          Completed: 0,
+          Watching: 0,
+          "On Hold": 0,
+          Dropped: 0,
+          "Plan to Watch": 0,
+          "Total Entries": 0,
+          Episodes: 0, // assuming this might come from other parts of `data`
+          Rewatched: 0,
+          Favourites: 0,
+          Likes: 0,
+        });
+  
+        setStatusCounts(counts);
+      }
+    }
+  
+    gettingStatus();
+  }, [userId]);
 
   if (userId === null || userId.id === null) {
     return (
@@ -50,47 +104,47 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Completed:</span>
-              <span className="ml-24">359</span> 
+              <span className="ml-24">{statusCounts.Completed}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Watching:</span>
-              <span className="ml-24">9</span> 
+              <span className="ml-24">{statusCounts.Watching}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">On Hold:</span>
-              <span className="ml-24">0</span> 
+              <span className="ml-24">{statusCounts["On Hold"]}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Dropped:</span>
-              <span className="ml-24">2</span>
+              <span className="ml-24">{statusCounts.Dropped}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Plan to Watch:</span>
-              <span className="ml-24">5</span> 
+              <span className="ml-24">{statusCounts["Plan to Watch"]}</span> 
             </div>
           </div>
 
-          {/* Right Column - 3 items */}
+          {/* Right Column - 5 items */}
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Total Entries:</span>
-              <span className="ml-24">412</span> 
+              <span className="ml-24">{statusCounts["Total Entries"]}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Rewatched:</span>
-              <span className="ml-24">0</span> 
+              <span className="ml-24">{statusCounts.Rewatched}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Episodes:</span>
-              <span className="ml-24">1114820</span>
+              <span className="ml-24">{statusCounts.Episodes}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Favourites:</span>
-              <span className="ml-24">5</span>
+              <span className="ml-24">{statusCounts.Favourites}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Likes:</span>
-              <span className="ml-24">5</span> 
+              <span className="ml-24">{statusCounts.Likes}</span> 
             </div>
           </div>
         </div>
