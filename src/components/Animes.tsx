@@ -47,7 +47,7 @@ function Animes({ showFeature }: AnimesProps) {
 
     const scroll = (direction: 'left' | 'right') => {
         setCurrentAnimeIndex((prevIndex) => {
-            const limitedAnimes = animes.slice(0, 10); // Limit to first 10 animes
+            const limitedAnimes = animes.slice(0, 12); // Limit to first 12 animes
             if (direction === 'left') {
                 return prevIndex === 0 ? limitedAnimes.length - 1 : prevIndex - 1;
             } else {
@@ -56,7 +56,7 @@ function Animes({ showFeature }: AnimesProps) {
         });
     };
 
-    const limitedAnimes = animes.slice(0, 10); // Limit to first 10 animes
+    const limitedAnimes = animes.slice(0, 12); // Limit to first 12 animes
     const currentAnime = limitedAnimes[currentAnimeIndex];
 
     return (
@@ -171,6 +171,9 @@ function Animes({ showFeature }: AnimesProps) {
                                             </div>
                                             <h2 className="text-white text-xl font-bold mt-4 text-center">{anime.title}</h2>
                                         </Link>
+                                        <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
+                                            <p></p>
+                                        </div>
                                     </div>
                                 ))}
                             </>
@@ -180,7 +183,7 @@ function Animes({ showFeature }: AnimesProps) {
                         
                 {showFeature &&(
                     <>
-                    {animes.map((anime) => (
+                    {animes.slice (0,12).map((anime) => (
                         <div key={anime.id} className="flex flex-col items-center">
                             <Link href={`/AnimesPage/${anime.id}`} className="w-full flex flex-col items-center">
                                 <div className="relative w-[300px] h-[400px]">
@@ -195,6 +198,9 @@ function Animes({ showFeature }: AnimesProps) {
                                 </div>
                                 <h2 className="text-white text-xl font-bold mt-4 text-center">{anime.title}</h2>
                             </Link>
+                            <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-start">
+                                <p></p>
+                            </div>
                         </div>
                     ))}
                     </>
@@ -203,14 +209,19 @@ function Animes({ showFeature }: AnimesProps) {
 
                 {/* Pagination */}
                 {!showFeature &&(
-                <PaginationControls
-                        currentPage={animeCurrentPage}
-                        totalPages={animeTotalPages}
-                        onNext={goToNextAnimePage}
-                        onPrevious={goToPreviousAnimePage}
-                        />
+                    <div className='mt-16'>
+                    <PaginationControls
+                            currentPage={animeCurrentPage}
+                            totalPages={animeTotalPages}
+                            onNext={goToNextAnimePage}
+                            onPrevious={goToPreviousAnimePage}
+                            />
+                    </div>
                 )}
                          
+                <div className="flex flex-col mb-24 w-full text-white text-4xl font-bold justify-start">
+                    <p></p>
+                </div>
             </div>
         </>
     );
