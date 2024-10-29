@@ -52,9 +52,6 @@ function AnimesPage({ anime }: AnimesPageProps) {
     gettingEpisodesAndDataOfAnime(); 
   }, [anime?.id] );
 
-  
-  
-
   const handleLike = async () => {
     if (!userData) {
       toast.error('Please login to like this anime', {
@@ -151,8 +148,6 @@ function AnimesPage({ anime }: AnimesPageProps) {
     }
   }
     
-
-
   if (!anime) {
     return <p>Anime not found</p>;
   }

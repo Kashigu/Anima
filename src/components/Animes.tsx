@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
 import { set } from 'mongoose';
+import PaginationControls from './PaginationControls';
+import usePagination from '@/app/hooks/usePagination';
 
 interface AnimesProps {
     showFeature: boolean; 
@@ -21,6 +23,7 @@ function Animes({ showFeature }: AnimesProps) {
     {/* Pagination */}
     const itemsPerPage = 12;
     const [resetPagination, setResetPagination] = useState(false);
+    const { currentPage: animeCurrentPage, totalPages: animeTotalPages, displayedItems: displayedAnimes, goToNextPage: goToNextAnimePage, goToPreviousPage: goToPreviousAnimePage } = usePagination(animes, itemsPerPage , resetPagination);
 
     useEffect(() => {
         async function gettingAnimes() {
@@ -39,6 +42,7 @@ function Animes({ showFeature }: AnimesProps) {
         setAnimeSearchQuery(e.target.value);
       };
     
+      
     useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes, setResetPagination);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -148,31 +152,32 @@ function Animes({ showFeature }: AnimesProps) {
                     )}
                 </div>
                 <div className="grid grid-cols-4 gap-x-8 gap-y-4 bg-custom-blue-dark">
-                {!showFeature &&(
-                    <>
-                    {animes.length >= 0 && (
+                    {!showFeature &&(
                         <>
-                            {animes.map((anime) => (
-                                <div key={anime.id} className="flex flex-col items-center">
-                                    <Link href={`/AnimesPage/${anime.id}`} className="w-full flex flex-col items-center">
-                                        <div className="relative w-[300px] h-[400px]">
-                                            <Image
-                                                src={anime.image_url}
-                                                alt={anime.title}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                priority={false}
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            />
-                                        </div>
-                                        <h2 className="text-white text-xl font-bold mt-4 text-center">{anime.title}</h2>
-                                    </Link>
-                                </div>
-                            ))}
-                        </>
+                        {animes.length >= 0 && (
+                            <>
+                                {displayedAnimes.map((anime) => (
+                                    <div key={anime.id} className="flex flex-col items-center">
+                                        <Link href={`/AnimesPage/${anime.id}`} className="w-full flex flex-col items-center">
+                                            <div className="relative w-[300px] h-[400px]">
+                                                <Image
+                                                    src={anime.image_url}
+                                                    alt={anime.title}
+                                                    fill
+                                                    style={{ objectFit: 'cover' }}
+                                                    priority={false}
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                />
+                                            </div>
+                                            <h2 className="text-white text-xl font-bold mt-4 text-center">{anime.title}</h2>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </>
                         )}
-                    </>
-                )}
+                        </> 
+                    )}
+                        
                 {showFeature &&(
                     <>
                     {animes.map((anime) => (
@@ -195,6 +200,17 @@ function Animes({ showFeature }: AnimesProps) {
                     </>
                 )}
                 </div>
+
+                {/* Pagination */}
+                {!showFeature &&(
+                <PaginationControls
+                        currentPage={animeCurrentPage}
+                        totalPages={animeTotalPages}
+                        onNext={goToNextAnimePage}
+                        onPrevious={goToPreviousAnimePage}
+                        />
+                )}
+                         
             </div>
         </>
     );
