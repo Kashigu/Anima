@@ -45,7 +45,7 @@ function Episodes() {
                     <div className='relative w-96'>
                         <input
                             type="text"
-                            placeholder="Search Anime"
+                            placeholder="Search Episode"
                             className="bg-black rounded-full py-1 px-4 pr-10 text-white border-b-2 w-full"
                             value={searchEpisodeQuery}
                             onChange={handleEpisodeSearchChange}
