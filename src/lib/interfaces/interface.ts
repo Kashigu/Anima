@@ -34,7 +34,7 @@ export interface User {
 }
 
 export interface Status {
-  _id: mongoose.Schema.Types.ObjectId;
+  _id?: mongoose.Schema.Types.ObjectId;
   id: string;
   idAnime: string;
   idUser: string;

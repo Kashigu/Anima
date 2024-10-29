@@ -25,7 +25,6 @@ const ProfilePage = ({ userId }: UserPageProps) => {
     async function gettingStatus() {
       if (userId && userId.id) {
         const data = await getStatusByUserId(userId.id);
-        console.log(data);
   
         // Count each status type
         const counts = data.reduce((acc: { [x: string]: number; }, stat: { status: any; }) => {
@@ -48,7 +47,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           Dropped: 0,
           "Plan to Watch": 0,
           "Total Entries": 0,
-          Episodes: 0, // assuming this might come from other parts of `data`
+          Episodes: 0, 
           Rewatched: 0,
           Favourites: 0,
           Likes: 0,

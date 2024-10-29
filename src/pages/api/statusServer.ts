@@ -17,7 +17,7 @@ async function getNextSequence(name: string) {
     await connectToDatabase();
     
     if (req.method === 'GET') {
-       const {userId, search} = req.query;
+       const {userId, search,animeId} = req.query;
        try {
         if (userId && typeof userId === 'string') {
             const status = await StatusModel.find({ idUser: userId });
@@ -30,6 +30,9 @@ async function getNextSequence(name: string) {
         } else if (search && typeof search === 'string' && search.trim() !== '') {
             const status = await StatusModel.find({ name: { $regex: search, $options: 'i' } });
             res.status(200).json(status);
+        } else if (animeId && typeof animeId === 'string') {
+            const status = await StatusModel.find({ idAnime: animeId });
+            res.status(200).json(status);
         }
         else {
             const status = await StatusModel.find({});
@@ -37,6 +40,36 @@ async function getNextSequence(name: string) {
         }
         } catch (err) {
         console.error('Error fetching data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+        }
+    } else if (req.method === 'POST') {
+        const { userId, animeId, status } = req.body;
+        try {
+        const id = await getNextSequence('statusId');
+        const newStatus = new StatusModel({
+            id,
+            idUser: userId,
+            idAnime: animeId,
+            status,
+        });
+        await newStatus.save();
+        res.status(201).json(newStatus);
+        } catch (err) {
+        console.error('Error creating status:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }else if (req.method === 'DELETE') {
+        const { id } = req.query;
+        try {
+        if (id && typeof id === 'string') {
+            const status = await StatusModel.findOneAndDelete
+            ({ id: id });
+            if (status) {
+                res.status(200).json(status);
+            }
+        }
+        } catch (err) {
+        console.error('Error deleting status:', err);
         res.status(500).json({ error: 'Internal Server Error' });
         }
     }else {
