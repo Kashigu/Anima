@@ -19,6 +19,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
     "Episodes": 0,
     "Favourites": 0,
     "Likes": 0,
+    "Dislikes": 0,
   });
 
   useEffect(() => {
@@ -26,9 +27,9 @@ const ProfilePage = ({ userId }: UserPageProps) => {
       if (userId && userId.id) {
         const data = await getStatusByUserId(userId.id);
   
-        // Count each status type
-        const counts = data.reduce((acc: { [x: string]: number; }, stat: { status: any; }) => {
-          const statusType = stat.status; // using `status` instead of `statusName`
+        // Count each status type, excluding specific ones from the Total Entries
+        const counts = data.reduce((acc: { [key: string]: number }, stat: { status: string }) => {
+          const statusType = stat.status;
   
           // Initialize the count for this status type if it doesn't exist
           if (!(statusType in acc)) {
@@ -37,7 +38,11 @@ const ProfilePage = ({ userId }: UserPageProps) => {
   
           // Increment the count for this status type
           acc[statusType] += 1;
-          acc["Total Entries"] += 1;
+  
+          // Increment Total Entries only for statuses that are NOT excluded
+          if (!["Episodes", "Favourites", "Likes", "Dislikes"].includes(statusType)) {
+            acc["Total Entries"] = (acc["Total Entries"] || 0) + 1;
+          }
   
           return acc;
         }, {
@@ -47,10 +52,11 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           Dropped: 0,
           "Plan to Watch": 0,
           "Total Entries": 0,
-          Episodes: 0, 
           Rewatched: 0,
+          Episodes: 0,
           Favourites: 0,
           Likes: 0,
+          Dislikes: 0,
         });
   
         setStatusCounts(counts);
@@ -144,6 +150,10 @@ const ProfilePage = ({ userId }: UserPageProps) => {
             <div className="flex justify-between">
               <span className="font-bold">Likes:</span>
               <span className="ml-24">{statusCounts.Likes}</span> 
+            </div>
+            <div className="flex justify-between">
+              <span className="font-bold">Dislikes:</span>
+              <span className="ml-24">{statusCounts.Dislikes}</span> 
             </div>
           </div>
         </div>
