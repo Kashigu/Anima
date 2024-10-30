@@ -1,14 +1,15 @@
 "use client";
-import { getEpisodesOfAnimeById } from '@/lib/client/animesClient';
+import { getEpisodes, getEpisodesOfAnimeById, getSearchedEpisodesOfAnime } from '@/lib/client/animesClient';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Anime, Episode, Status, User } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faStar, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
 import { deleteStatus, getStatusByAnimeId, getStatusByUserId, postStatus } from '@/lib/client/status';
 import useAuth from '@/app/hooks/useAuth';
 import toast from 'react-hot-toast';
+import usePagination from '@/app/hooks/usePagination';
 
 
 
@@ -23,6 +24,15 @@ function AnimesPage({ anime }: AnimesPageProps) {
   useAuth(setUserData);
 
   const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [searchEpisodeQuery, setEpisodeSearchQuery] = useState('');
+
+
+  {/* Pagination */}
+  const itemsPerPage = 12;
+  const [resetPagination, setResetPagination] = useState(false);
+  const { currentPage: episodeCurrentPage, totalPages: episodeTotalPages, displayedItems: displayedEpisodes, goToNextPage: goToNextEpisodePage, goToPreviousPage: goToPreviousEpisodePage } = usePagination(episodes, itemsPerPage, resetPagination);
+
+
   const [statusUserData, setStatusUserData] = useState<Status []>([]);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
@@ -51,6 +61,55 @@ function AnimesPage({ anime }: AnimesPageProps) {
     }
     gettingEpisodesAndDataOfAnime(); 
   }, [anime?.id] );
+
+
+  const useDebouncedSearchEpisodeOfAnime = (
+      query: string,
+      fetchFunction: (query: string, animeId: string) => Promise<any>,
+      setData: (data: any) => void,
+      defaultDataFetch: (animeId: string) => Promise<any>,
+      setResetPagination: ((reset: boolean) => void) | null,
+      animeId: string
+  ) => {
+      useEffect(() => {
+          const delayDebounceFn = setTimeout(async () => {
+              if (query.trim() && animeId) {
+                  try {
+                      const results = await fetchFunction(query, animeId);
+                      if (results) {
+                          setData(results);
+                          if (setResetPagination) setResetPagination(true);
+                      }
+                  } catch (error) {
+                      console.error('Error fetching data:', error);
+                  }
+              } else if (animeId) {
+                  const defaultData = await defaultDataFetch(animeId);
+                  setData(defaultData || []);
+                  if (setResetPagination) setResetPagination(false);
+              }
+          }, 300);
+
+          return () => clearTimeout(delayDebounceFn);
+      }, [query, animeId, fetchFunction, setData, defaultDataFetch, setResetPagination]);
+  };
+ 
+  if (anime?.id) {
+    useDebouncedSearchEpisodeOfAnime(
+        searchEpisodeQuery,
+        getSearchedEpisodesOfAnime,
+        setEpisodes,
+        getEpisodesOfAnimeById, // Adjust if `getEpisodesOfAnimeById` needs to take `anime.id` as a parameter
+        setResetPagination,
+        anime.id
+    );
+  }
+  
+
+  const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setEpisodeSearchQuery(e.target.value);
+  };
+
 
   const handleLike = async () => {
     if (!userData) {
@@ -147,7 +206,9 @@ function AnimesPage({ anime }: AnimesPageProps) {
       }
     }
   }
-    
+
+  
+  
   if (!anime) {
     return <p>Anime not found</p>;
   }
@@ -219,11 +280,25 @@ function AnimesPage({ anime }: AnimesPageProps) {
             </span>
         ))}
       </div>
-      <div className="flex flex-col w-full mt-6 text-white text-4xl font-bold justify-start pl-2 bg-black pb-2 mb-12">
-        Episodes
+      <div className="space-x-12 flex items-center relative mb-12 w-full text-white font-bold container mx-auto pl-2 bg-black pb-2 justify-between">
+        <div className='text-4xl'>Episodes</div>
+        
+        <div className='relative w-96'>
+            <input
+                type="text"
+                placeholder="Search Episode"
+                className="bg-black rounded-full py-1 px-4 pr-10 text-white border-b-2 w-full"
+                value={searchEpisodeQuery}
+                onChange={handleEpisodeSearchChange}
+            />
+            <button className="text-white hover:text-red-500 absolute right-3 top-1/2 transform -translate-y-1/2">
+                <FontAwesomeIcon icon={faSearch} />
+            </button>
+        </div>
+        
       </div>
       <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark mt-6">
-        {episodes.map((episode) => (
+        {displayedEpisodes.map((episode) => (
           <div key={episode.id} className="relative flex flex-col items-center">
             <Link href={`/EpisodesPage/${anime.id}/${episode.id}`} className="relative flex flex-col items-center">
               {/* Thumbnail Image */}

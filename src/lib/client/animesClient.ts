@@ -50,6 +50,16 @@ async function getSearchedEpisodes(search: string) {
   }
 }
 
+async function getSearchedEpisodesOfAnime(search: string, id: string) {
+  try {
+    const response = await axiosClient.get(`api/${id}/episodes?search=${search}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch episodes:', error);
+    return null;
+  }
+}
+
 async function getEpisodesOfAnimeById(id: string) {
   try {
     const response = await axiosClient.get(`api/${id}/episodes`);
@@ -162,4 +172,4 @@ async function updateEpisode(data: any) {
 
 export { getAnimes, getAnimeById , getEpisodesOfAnimeById , getOneEpisodeOfAnimeById,
          getEpisodes, deleteAnime, deleteEpisode, postAnime, updateAnime, getSearchedAnimes, getSearchedEpisodes,
-         postEpisode, updateEpisode, getEpisodeById};
+         postEpisode, updateEpisode, getEpisodeById , getSearchedEpisodesOfAnime};

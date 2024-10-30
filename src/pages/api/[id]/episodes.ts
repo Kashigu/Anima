@@ -8,7 +8,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
 
   if (req.method === 'GET') {
-    const { id, episodeId } = req.query;
+    const { id, episodeId, search } = req.query;
 
     try {
       if (id && typeof id === 'string') {
@@ -17,10 +17,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           const episode = await EpisodeModel.findOne({ idAnime: id, id: episodeId });
           if (episode) {
             res.status(200).json(episode);
-          } else {
+          } else{
             res.status(404).json({ error: 'Episode not found' });
           }
-        } else {
+        }else if( search && typeof search === 'string' && search.trim() !== ''){
+          const episode = await EpisodeModel.find({ idAnime: id, title: { $regex: search, $options: 'i' } });
+          if (episode) {
+            res.status(200).json(episode);
+          }else{
+            res.status(404).json({ error: 'Episode not found' });
+          }
+        }else {
           // Fetch all episodes for a given animeId
           const episodes = await EpisodeModel.find({ idAnime: id });
           res.status(200).json(episodes);

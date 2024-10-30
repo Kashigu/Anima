@@ -6,7 +6,6 @@ import { Anime } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
-import { set } from 'mongoose';
 import PaginationControls from './PaginationControls';
 import usePagination from '@/app/hooks/usePagination';
 
