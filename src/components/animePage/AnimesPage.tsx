@@ -270,7 +270,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
         <h2 className="text-2xl mb-4 text-white font-bold">Genres</h2>
       </div>
       {/* Genres */}
-      <div className="flex flex-wrap mt-2 justify-center space-x-2">
+      <div className="flex flex-wrap mt-2 mb-4 justify-center space-x-2">
         {anime.genres.slice(0,9).map((genres, index) => (
             <span
             key={index}
@@ -280,9 +280,8 @@ function AnimesPage({ anime }: AnimesPageProps) {
             </span>
         ))}
       </div>
-      <div className="space-x-12 flex items-center relative mb-12 w-full text-white font-bold container mx-auto pl-2 bg-black pb-2 justify-between">
+      <div className="space-x-12 flex items-center relative mb-12  w-full text-white font-bold container mx-auto pl-2 bg-black pb-2 justify-between">
         <div className='text-4xl'>Episodes</div>
-        
         <div className='relative w-96'>
             <input
                 type="text"
