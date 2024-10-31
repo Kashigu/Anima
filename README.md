@@ -15,3 +15,8 @@ The application supports multiple user types, including standard users and admin
 ![Home Page](./public/images/homepage.png)
 <br/>
 ![Register](./public/images/register.png)
+
+## Important Notice
+
+This project is intended for educational purposes only. It is a demonstration of my full-stack development skills and is not designed for production use. Any attempts to deploy this application in a live environment, particularly as a streaming service, may violate copyright laws and other regulations.
+Please do not use this project for commercial or public streaming purposes. Thank you for your understanding!
