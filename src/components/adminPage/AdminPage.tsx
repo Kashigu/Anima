@@ -40,7 +40,7 @@ const AdminPage = () => {
           <div className="flex flex-col items-center bg-black p-4 rounded-lg shadow-lg w-[250px] h-[350px]">
             <div className="w-full h-[200px] bg-gray-800 mb-4">
               <img
-                src="images/imagenami.png"
+                src="images/animes.png"
                 alt="Create Animes"
                 className="w-full h-full object-cover"
               />
@@ -57,7 +57,7 @@ const AdminPage = () => {
           <div className="flex flex-col items-center bg-black p-4 rounded-lg shadow-lg w-[250px] h-[350px]">
             <div className="w-full h-[200px] bg-gray-800 mb-4">
               <img
-                src="images/imagesyndra.png"
+                src="images/videos.png"
                 alt="Create Episodes"
                 className="w-full h-full object-cover"
               />
@@ -73,7 +73,7 @@ const AdminPage = () => {
           <div className="flex flex-col items-center bg-black p-4 rounded-lg shadow-lg w-[250px] h-[350px]">
             <div className="w-full h-[200px] bg-gray-800 mb-4">
               <img
-                src="images/cover2.jpg"
+                src="images/categories.png"
                 alt="Create Mangas"
                 className="w-full h-full object-cover"
               />
@@ -97,7 +97,7 @@ const AdminPage = () => {
           <div className="flex flex-col items-center bg-black p-4 rounded-lg shadow-lg w-[250px] h-[350px]">
               <div className="w-full h-[200px] bg-gray-800 mb-4">
                 <img
-                  src="images/darktarr.png"
+                  src="images/whiteuser.png"
                   alt="User Administration"
                   className="w-full h-full object-cover"
                 />
