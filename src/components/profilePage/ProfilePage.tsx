@@ -15,7 +15,6 @@ const ProfilePage = ({ userId }: UserPageProps) => {
     "Dropped": 0,
     "Plan to Watch": 0,
     "Total Entries": 0,
-    "Rewatched": 0,
     "Episodes": 0,
     "Favourites": 0,
     "Likes": 0,
@@ -52,7 +51,6 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           Dropped: 0,
           "Plan to Watch": 0,
           "Total Entries": 0,
-          Rewatched: 0,
           Episodes: 0,
           Favourites: 0,
           Likes: 0,
@@ -134,10 +132,6 @@ const ProfilePage = ({ userId }: UserPageProps) => {
             <div className="flex justify-between">
               <span className="font-bold">Total Entries:</span>
               <span className="ml-24">{statusCounts["Total Entries"]}</span> 
-            </div>
-            <div className="flex justify-between">
-              <span className="font-bold">Rewatched:</span>
-              <span className="ml-24">{statusCounts.Rewatched}</span> 
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Episodes:</span>

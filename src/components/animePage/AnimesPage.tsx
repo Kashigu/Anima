@@ -48,10 +48,12 @@ function AnimesPage({ anime }: AnimesPageProps) {
 
         setEpisodes(data || []);
         setStatusUserData(statusUserData || []);
-        const counts = statusAnimeData.reduce((acc: { Likes: number; }, stat: { status: string }) => {
+        const counts = statusAnimeData.reduce((acc: { Likes: number, Dislikes: number }, stat: { status: string }) => {
           if (stat.status === "Likes") {
             acc.Likes += 1;
-          } 
+          } else if (stat.status === "Dislikes") {
+            acc.Dislikes += 1;
+          }
           return acc;
         }, { Likes: 0, Dislikes: 0 });
 
@@ -234,12 +236,10 @@ function AnimesPage({ anime }: AnimesPageProps) {
         setStatusUserData((prev) => prev.filter((status) => status.id !== userFavouriteStatus.id));
         await deleteStatus(userFavouriteStatus.id);
         setIsFavourite(false);
-        console.log("Favourite removed");
       } else {
         const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, status: "Favourites" };
         setStatusUserData((prev) => [...prev, newStatus]);
         setIsFavourite(true);
-        console.log("Favourite added");
 
         // Perform the actual post request and get the new status ID from response
         const postedStatus = await postStatus(userData.id, anime.id, "Favourites");
@@ -251,6 +251,53 @@ function AnimesPage({ anime }: AnimesPageProps) {
     }
   }
   
+  const handleStatusChange = async (e: { target: { value: string; }; }) => {
+    if (!userData) {
+      toast.error('Please login to change status of this anime', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+      return;
+    }
+    // Get the new status value from the dropdown
+    const newStatusValue = e.target.value;
+    // Find the current status of the user for this anime if it exists 
+    const userStatus = statusUserData.find(
+      (status) =>
+        status.idUser === userData?.id &&
+        status.idAnime === anime?.id &&
+        ["Completed", "Watching", "On Hold", "Dropped", "Plan to Watch"].includes(status.status)
+    );
+    
+    // Remove the current status if it exists
+    if (userStatus) {
+      setStatusUserData((prev) =>
+        prev.map((status) =>
+          status.id === userStatus.id
+            ? { ...status, status: newStatusValue } // Temporarily set the new value
+            : status
+        )
+      );
+      await deleteStatus(userStatus.id);
+      setStatusUserData((prev) => prev.filter((status) => status.id !== userStatus.id));
+    }
+    // Add the new status if it is not "Select"
+    if (newStatusValue !== "Select" && anime && userData) {
+      const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, status: newStatusValue };
+      setStatusUserData((prev) => [...prev, newStatus]);
+
+      // Perform the actual post request and get the new status ID from response
+      const postedStatus = await postStatus(userData.id, anime.id, newStatusValue);
+      
+      setStatusUserData((prev) =>
+        prev.map((status) => (status.id === 'temp' ? postedStatus : status))
+      );
+    }
+  }
   
   if (!anime) {
     return <p>Anime not found</p>;
@@ -294,7 +341,20 @@ function AnimesPage({ anime }: AnimesPageProps) {
           <p>{anime.description}</p>
           <div className="mt-6">
             <h2 className="text-2xl mb-4 font-bold">Status</h2>
-            <select className="bg-black text-white px-2 py-1 rounded-lg ">
+            {/* Status dropdown */}
+            <select
+              className="bg-black text-white px-2 py-1 rounded-lg"
+              value={
+                statusUserData
+                  .find(
+                    (status) => 
+                      status.idUser === userData?.id &&
+                      status.idAnime === anime?.id &&
+                      !["Likes", "Dislikes", "Favourites"].includes(status.status)
+                  )?.status || 'Select'
+              }
+              onChange={handleStatusChange}
+            >
               <option value="Select">Select</option>
               <option value="Completed">Completed</option>
               <option value="Watching">Watching</option>
@@ -302,6 +362,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
               <option value="Dropped">Dropped</option>
               <option value="Plan to Watch">Plan to Watch</option>
             </select>
+            
             {/* Favourite button */}
             
             <button className={`px-3 py-1 rounded-lg flex items-center mt-6 gap-2 ${isFavourite ? 'bg-yellow-500 text-black' : 'bg-black text-white'}`}
