@@ -36,8 +36,10 @@ function AnimesPage({ anime }: AnimesPageProps) {
   const [statusUserData, setStatusUserData] = useState<Status []>([]);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
+  const [isFavourite, setIsFavourite] = useState(false);
    
   useEffect(() => {
+    
     async function gettingEpisodesAndDataOfAnime() { 
       if (anime?.id) {
         const data = await getEpisodesOfAnimeById(anime.id);
@@ -57,10 +59,16 @@ function AnimesPage({ anime }: AnimesPageProps) {
         setLikes(counts.Likes);
         setDislikes(counts.Dislikes);
         
+        const userFavouriteStatus = statusUserData.find(
+          (status: { idUser: string | undefined; idAnime: string; status: string; }) => status.idUser === userData?.id && status.idAnime === anime?.id && status.status === "Favourites"
+        );
+        setIsFavourite(!!userFavouriteStatus);
       }
     }
     gettingEpisodesAndDataOfAnime(); 
-  }, [anime?.id] );
+
+    
+  }, [ userData, anime?.id] );
 
 
   const useDebouncedSearchEpisodeOfAnime = (
@@ -99,7 +107,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
         searchEpisodeQuery,
         getSearchedEpisodesOfAnime,
         setEpisodes,
-        getEpisodesOfAnimeById, // Adjust if `getEpisodesOfAnimeById` needs to take `anime.id` as a parameter
+        getEpisodesOfAnimeById, 
         setResetPagination,
         anime.id
     );
@@ -143,13 +151,10 @@ function AnimesPage({ anime }: AnimesPageProps) {
         setStatusUserData((prev) => prev.filter((status) => status.id !== userLikeStatus.id));
         await deleteStatus(userLikeStatus.id);
       } else {
-        // Optimistically update the UI to add a like 
-        // (this is just visual feedback to the user, the actual status will be added after the post request)
         setLikes((prev) => prev + 1);
         const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, status: "Likes" };
         setStatusUserData((prev) => [...prev, newStatus]);
 
-        // Perform the actual post request and get the new status ID from response
         const postedStatus = await postStatus(userData.id, anime.id, "Likes");
         
         setStatusUserData((prev) =>
@@ -207,6 +212,44 @@ function AnimesPage({ anime }: AnimesPageProps) {
     }
   }
 
+  const handleFavourite = async () => {
+    if (!userData) {
+      toast.error('Please login to favourite this anime', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+      return;
+    }
+    
+    const userFavouriteStatus = statusUserData.find(
+      (status) => status.idUser === userData?.id && status.idAnime === anime?.id && status.status === "Favourites"
+    );
+    
+    if (anime && userData) {
+      if (userFavouriteStatus) {
+        setStatusUserData((prev) => prev.filter((status) => status.id !== userFavouriteStatus.id));
+        await deleteStatus(userFavouriteStatus.id);
+        setIsFavourite(false);
+        console.log("Favourite removed");
+      } else {
+        const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, status: "Favourites" };
+        setStatusUserData((prev) => [...prev, newStatus]);
+        setIsFavourite(true);
+        console.log("Favourite added");
+
+        // Perform the actual post request and get the new status ID from response
+        const postedStatus = await postStatus(userData.id, anime.id, "Favourites");
+        
+        setStatusUserData((prev) =>
+          prev.map((status) => (status.id === 'temp' ? postedStatus : status))
+        );
+      }
+    }
+  }
   
   
   if (!anime) {
@@ -259,7 +302,11 @@ function AnimesPage({ anime }: AnimesPageProps) {
               <option value="Dropped">Dropped</option>
               <option value="Plan to Watch">Plan to Watch</option>
             </select>
-            <button className="bg-black text-white px-3 py-1 rounded-lg flex items-center mt-6 gap-2">
+            {/* Favourite button */}
+            
+            <button className={`px-3 py-1 rounded-lg flex items-center mt-6 gap-2 ${isFavourite ? 'bg-yellow-500 text-black' : 'bg-black text-white'}`}
+                    onClick={handleFavourite}
+            >
               <FontAwesomeIcon icon={faStar} />
             </button>
           </div>
