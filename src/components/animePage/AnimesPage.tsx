@@ -68,7 +68,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
       }
     }
     gettingEpisodesAndDataOfAnime(); 
-
+    
     
   }, [ userData, anime?.id] );
 

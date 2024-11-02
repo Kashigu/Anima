@@ -15,6 +15,14 @@ The application supports multiple user types, including standard users and admin
 ![Home Page](./public/images/homepage.png)
 <br/>
 ![Register](./public/images/register.png)
+<br/>
+![Animes](./public/images/Animess.png)
+<br/>
+![AnimePage](./public/images/AnimesPage.png)
+<br/>
+![Episodes](./public/images/Episodes.png)
+<br/>
+![Profile](./public/images/Profile.png)
 
 ## Important Notice
 
