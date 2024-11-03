@@ -111,19 +111,19 @@ const ProfilePage = ({ userId }: UserPageProps) => {
               <span className="ml-24">{statusCounts.Completed}</span> 
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Watching:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/2`}>Watching:</Link>
               <span className="ml-24">{statusCounts.Watching}</span> 
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">On Hold:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/3`}>On Hold:</Link>
               <span className="ml-24">{statusCounts["On Hold"]}</span> 
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Dropped:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/4`}>Dropped:</Link>
               <span className="ml-24">{statusCounts.Dropped}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Plan to Watch:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/5`}>Plan to Watch:</Link>
               <span className="ml-24">{statusCounts["Plan to Watch"]}</span> 
             </div>
           </div>
@@ -139,15 +139,15 @@ const ProfilePage = ({ userId }: UserPageProps) => {
               <span className="ml-24">{statusCounts.Episodes}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Favourites:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/6`}>Favourites:</Link>
               <span className="ml-24">{statusCounts.Favourites}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Likes:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/7`}>Likes:</Link>
               <span className="ml-24">{statusCounts.Likes}</span> 
             </div>
             <div className="flex justify-between">
-              <span className="font-bold">Dislikes:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/8`}>Dislikes:</Link>
               <span className="ml-24">{statusCounts.Dislikes}</span> 
             </div>
           </div>
