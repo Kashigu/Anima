@@ -1,6 +1,7 @@
 "use client";
 import { getStatusByUserId } from "@/lib/client/status";
-import { Status, User } from "@/lib/interfaces/interface";
+import { User } from "@/lib/interfaces/interface";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface UserPageProps {
@@ -106,7 +107,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
           {/* Left Column - 5 items */}
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between">
-              <span className="font-bold">Completed:</span>
+              <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/1`}>Completed:</Link>
               <span className="ml-24">{statusCounts.Completed}</span> 
             </div>
             <div className="flex justify-between">

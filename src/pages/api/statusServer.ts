@@ -1,25 +1,27 @@
 import connectToDatabase from "@/lib/db";
+import AnimeModel from "@/lib/models/AnimeModel";
 import CounterModel from "@/lib/models/CounterUserModel";
 import StatusModel from "@/lib/models/StatusModel";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Function to get the next user sequence
-async function getNextSequence(name: string) {
-    const counter = await CounterModel.findOneAndUpdate(
-      { _id: name },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    );
-    return counter.seq;
-  }
+    async function getNextSequence(name: string) {
+        const counter = await CounterModel.findOneAndUpdate(
+        { _id: name },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+        );
+        return counter.seq;
+    }
+
 
   async function handler(req: NextApiRequest, res: NextApiResponse) {
     await connectToDatabase();
     
     if (req.method === 'GET') {
-       const {userId, search,animeId} = req.query;
+       const {userId, search, animeId, statusName} = req.query;
        try {
-        if (userId && typeof userId === 'string') {
+        if (userId && typeof userId === 'string' && !statusName) {
             const status = await StatusModel.find({ idUser: userId });
             if (status) {
             res.status(200).json(status);
@@ -33,8 +35,10 @@ async function getNextSequence(name: string) {
         } else if (animeId && typeof animeId === 'string') {
             const status = await StatusModel.find({ idAnime: animeId });
             res.status(200).json(status);
-        }
-        else {
+        }else if (userId && typeof userId === 'string' && statusName && typeof statusName === 'string') {
+            const status = await StatusModel.find({ idUser: userId, status: statusName });
+            res.status(200).json(status);
+        }else {
             const status = await StatusModel.find({});
             res.status(200).json(status);
         }

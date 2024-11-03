@@ -55,5 +55,14 @@ async function deleteStatus(id: string) {
   }
 }
 
+async function getSpecificStatusOfUser(userId: string, statusName: string) {
+  try {
+    const response = await axiosClient.get(`api/statusServer?userId=${userId}&statusName=${statusName}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+    return null;
+  }
+}
 
-export { getStatus, getStatusByUserId, getStatusByAnimeId , postStatus, deleteStatus };
+export { getStatus, getStatusByUserId, getStatusByAnimeId , postStatus, deleteStatus, getSpecificStatusOfUser };

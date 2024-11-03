@@ -1,5 +1,5 @@
 "use client";
-import '../../../globals.css'; // Ensure this path is correct
+import '../../../globals.css';
 import AdminListPage from '@/components/adminList/AdminListPage';
 
 

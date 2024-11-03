@@ -1,7 +1,7 @@
 import { blockUser, deleteUser, getSearchedUsers, getUsers } from "@/lib/client/user";
 import { Anime, Category, Episode, User } from "@/lib/interfaces/interface";
 import Link from "next/link";
-import { SetStateAction, use, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from "react-hot-toast";
