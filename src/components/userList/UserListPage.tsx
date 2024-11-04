@@ -2,14 +2,15 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Anime } from '@/lib/interfaces/interface';
 import { getSpecificStatusOfUser } from '@/lib/client/status';
 import { getAnimeById } from '@/lib/client/animesClient';
-import { data } from 'autoprefixer';
 
 function UserListPage({ statusId, id }: { statusId: string, id: string }) {
     const [animes, setAnimes] = useState<Anime[]>([]);
     const [status, setStatus] = useState<Status[]>([]);
+    
 
     const Status = {
         1: 'Completed',
@@ -21,10 +22,18 @@ function UserListPage({ statusId, id }: { statusId: string, id: string }) {
         7: 'Likes',
         8: 'Dislikes'
     } as const;
+    const [selectedStatusId, setSelectedStatusId] = useState<string>(statusId); // State for selected status
 
     type Status = typeof Status[keyof typeof Status];
 
     statusId = Status[statusId as unknown as keyof typeof Status];
+
+    const router = useRouter();
+    // Function to reset the page and update the URL
+    const resetPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const newStatusId = event.target.value; // Get the selected value
+        router.push(`/Profile/${id}/UserList/${newStatusId}`); // Update the URL with the new statusId
+    };
 
     useEffect(() => {
         async function gettingSpecificStatusOfUser() {
@@ -51,6 +60,8 @@ function UserListPage({ statusId, id }: { statusId: string, id: string }) {
         gettingSpecificStatusOfUser();
     }, [id, statusId]);
 
+    console.log(statusId)
+
     return (
         <>
             <div className="container mx-auto h-screen bg-custom-blue-dark">
@@ -59,6 +70,18 @@ function UserListPage({ statusId, id }: { statusId: string, id: string }) {
                 </div>
                 <div className="space-x-12 flex items-center relative mb-12 w-full text-white font-bold container mx-auto pl-2 bg-black pb-2 justify-between">
                     <div className='text-4xl'>{statusId}</div>
+                    <div className='relative w-96'>
+                        <select className="bg-black rounded-full py-1 px-4 pr-10 text-white border-b-2 w-full" value={selectedStatusId} onChange={resetPage}>
+                            <option value="1">Completed</option>
+                            <option value="2">Watching</option>
+                            <option value="3">On Hold</option>
+                            <option value="4">Dropped</option>
+                            <option value="5">Plan to Watch</option>
+                            <option value="6">Favourites</option>
+                            <option value="7">Likes</option>
+                            <option value="8">Dislikes</option>
+                        </select>
+                    </div>
                 </div>
                 <div className="grid grid-cols-4 gap-x-8 gap-y-4 bg-custom-blue-dark">
                     {animes.map((anime) => (
