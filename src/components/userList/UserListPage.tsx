@@ -9,7 +9,7 @@ import { getAnimeById } from '@/lib/client/animesClient';
 
 function UserListPage({ statusId, id }: { statusId: string, id: string }) {
     const [animes, setAnimes] = useState<Anime[]>([]);
-    const [status, setStatus] = useState<Status[]>([]);
+    const [, setStatus] = useState<Status[]>([]);
     
 
     const Status = {
@@ -22,7 +22,7 @@ function UserListPage({ statusId, id }: { statusId: string, id: string }) {
         7: 'Likes',
         8: 'Dislikes'
     } as const;
-    const [selectedStatusId, setSelectedStatusId] = useState<string>(statusId); // State for selected status
+    const [selectedStatusId] = useState<string>(statusId); // State for selected status
 
     type Status = typeof Status[keyof typeof Status];
 
