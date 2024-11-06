@@ -11,7 +11,6 @@ function UserListPage({ statusId, id }: { statusId: string, id: string }) {
     const [animes, setAnimes] = useState<Anime[]>([]);
     const [, setStatus] = useState<Status[]>([]);
     
-
     const Status = {
         1: 'Completed',
         2: 'Watching',

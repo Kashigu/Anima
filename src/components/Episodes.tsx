@@ -6,6 +6,8 @@ import { Episode } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import useDebouncedSearch from '@/app/hooks/useDebounceSearch';
+import PaginationControls from './PaginationControls';
+import usePagination from '@/app/hooks/usePagination';
 
 function Episodes() {
     // Define state to store anime data state
@@ -15,6 +17,8 @@ function Episodes() {
     {/* Pagination */}
     const itemsPerPage = 12;
     const [resetPagination, setResetPagination] = useState(false);
+    const { currentPage: episodeCurrentPage, totalPages: episodeTotalPages, displayedItems: displayedEpisodes, goToNextPage: goToNextEpisodePage, goToPreviousPage: goToPreviousEpisodePage } = usePagination(Episodes, itemsPerPage, resetPagination);
+
     
     useEffect(() => {
         async function gettingEpisodes() { 
@@ -56,7 +60,7 @@ function Episodes() {
                     </div>
                 </div>
                 <div className="grid grid-cols-3 gap-x-8 gap-y-4 bg-custom-blue-dark">
-                    {Episodes.map((episode) => (
+                    {displayedEpisodes.map((episode) => (
                         <div key={episode.id} className="relative flex flex-col items-center">
                             <Link href={`/EpisodesPage/${episode.idAnime}/${episode.id}`} className="relative flex flex-col items-center">
                             {/* Thumbnail Image */}
@@ -88,6 +92,15 @@ function Episodes() {
                             
                         </div>
                     ))}
+                </div>
+                <PaginationControls
+                    currentPage={episodeCurrentPage}
+                    totalPages={episodeTotalPages}
+                    onNext={goToNextEpisodePage}
+                    onPrevious={goToPreviousEpisodePage}
+                />
+                <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-center items-center">
+                    <p></p> 
                 </div>
             </div>
         </>

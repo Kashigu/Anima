@@ -10,6 +10,7 @@ import { deleteStatus, getStatusByAnimeId, getStatusByUserId, postStatus } from 
 import useAuth from '@/app/hooks/useAuth';
 import toast from 'react-hot-toast';
 import usePagination from '@/app/hooks/usePagination';
+import PaginationControls from '../PaginationControls';
 
 
 
@@ -31,7 +32,6 @@ function AnimesPage({ anime }: AnimesPageProps) {
   const itemsPerPage = 12;
   const [resetPagination, setResetPagination] = useState(false);
   const { currentPage: episodeCurrentPage, totalPages: episodeTotalPages, displayedItems: displayedEpisodes, goToNextPage: goToNextEpisodePage, goToPreviousPage: goToPreviousEpisodePage } = usePagination(episodes, itemsPerPage, resetPagination);
-
 
   const [statusUserData, setStatusUserData] = useState<Status []>([]);
   const [likes, setLikes] = useState(0);
@@ -431,11 +431,17 @@ function AnimesPage({ anime }: AnimesPageProps) {
               </div>
               <h2 className="text-white text-xl font-bold mt-4 text-center">{episode.title}</h2>
             </Link>
-            <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-center items-center">
-              <p></p> 
-            </div>
           </div>
-        ))}
+        ))} 
+      </div>
+      <PaginationControls
+        currentPage={episodeCurrentPage}
+        totalPages={episodeTotalPages}
+        onNext={goToNextEpisodePage}
+        onPrevious={goToPreviousEpisodePage}
+      />
+      <div className="flex flex-col mb-12 w-full text-white text-4xl font-bold justify-center items-center">
+        <p></p> 
       </div>
     </div>
   );  
