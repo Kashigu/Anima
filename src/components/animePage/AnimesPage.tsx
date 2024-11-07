@@ -339,35 +339,45 @@ function AnimesPage({ anime }: AnimesPageProps) {
         <div className="flex flex-col max-w-lg text-lg">
           <h2 className="text-2xl mb-4 font-bold">Description</h2>
           <p>{anime.description}</p>
-          <div className="mt-6">
-            <h2 className="text-2xl mb-4 font-bold">Status</h2>
-            {/* Status dropdown */}
-            <select
-              className="bg-black text-white px-2 py-1 rounded-lg"
-              value={
-                statusUserData
-                  .find(
-                    (status) => 
-                      status.idUser === userData?.id &&
-                      status.idAnime === anime?.id &&
-                      !["Likes", "Dislikes", "Favourites"].includes(status.status)
-                  )?.status || 'Select'
-              }
-              onChange={handleStatusChange}
-            >
-              <option value="Select">Select</option>
-              <option value="Completed">Completed</option>
-              <option value="Watching">Watching</option>
-              <option value="On Hold">On Hold</option>
-              <option value="Dropped">Dropped</option>
-              <option value="Plan to Watch">Plan to Watch</option>
-            </select>
+          <div className="mt-6 grid grid-cols-2">
+            <div>
+              <h2 className="text-2xl mb-4 font-bold">Status</h2>
+              {/* Status dropdown */}
+              <select
+                className="bg-black text-white px-2 py-1 rounded-lg"
+                value={
+                  statusUserData
+                    .find(
+                      (status) => 
+                        status.idUser === userData?.id &&
+                        status.idAnime === anime?.id &&
+                        !["Likes", "Dislikes", "Favourites"].includes(status.status)
+                    )?.status || 'Select'
+                }
+                onChange={handleStatusChange}
+              >
+                <option value="Select">Select</option>
+                <option value="Completed">Completed</option>
+                <option value="Watching">Watching</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Dropped">Dropped</option>
+                <option value="Plan to Watch">Plan to Watch</option>
+              </select>
+            </div>
+            {/* Episode Count*/}
+            <div className=" grid grid-cols-2">
+              <div>
+                <h2 className="text-2xl mb-4 font-bold">Episodes</h2>
+                <input type="text" className="bg-black text-white px-2 py-1 rounded-lg w-10" value={0} />
+                <span className="text-white">/ {anime.episodes}</span>
+              </div>
+            </div>
             
             {/* Favourite button */}
-            
+          </div>
+          <div className="mt-6">
             <button className={`px-3 py-1 rounded-lg flex items-center mt-6 gap-2 ${isFavourite ? 'bg-yellow-500 text-black' : 'bg-black text-white'}`}
-                    onClick={handleFavourite}
-            >
+                    onClick={handleFavourite}>
               <FontAwesomeIcon icon={faStar} />
             </button>
           </div>

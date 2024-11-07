@@ -1,4 +1,3 @@
-// src/lib/types/interfaces.ts
 import mongoose from 'mongoose';
 
 export interface Anime {
@@ -9,6 +8,7 @@ export interface Anime {
   genres: Array<string>;
   image_url: string;
   big_image_url: string;
+  episodes: number;
 }
 
 export interface Episode {

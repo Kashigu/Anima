@@ -20,6 +20,7 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
         image_url: null as File | null,
         genres: [] as string[], // Array to hold selected genres
         big_image_url: null as File | null,
+        episodes: 0,
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -43,6 +44,7 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
               image_url: null,
               big_image_url: null,
               genres: anime.genres || [],
+              episodes: anime.episodes || 0,
             });
           }
         gettingCategories();
@@ -97,6 +99,7 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
         const formDataToSend = new FormData();
         formDataToSend.append("title", formData.title);
         formDataToSend.append("description", formData.description);
+        formDataToSend.append("episodes", formData.episodes.toString());
         
         // Correctly append genres from formData
         formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
@@ -155,6 +158,7 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
         }
         formDataToSend.append("title", formData.title);
         formDataToSend.append("description", formData.description);
+        formDataToSend.append("episodes", formData.episodes.toString());
         
         // Correctly append genres from formData
         formData.genres.forEach((genre) => formDataToSend.append('genres[]', genre)); 
@@ -267,6 +271,18 @@ const NewAnime = ({ anime }: AnimesPageProps) => {
                             value={formData.description}
                             onChange={handleChange}
                             className="w-full h-32  px-4 py-2 bg-black text-white rounded"
+                            required
+                        />
+                    </div>
+                    {/* Episodes Field */}
+                    <div className="w-full max-w-md">
+                        <label className="block mb-2 text-2xl">Episodes</label>
+                        <input
+                            type="number"
+                            name="episodes"
+                            value={formData.episodes}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-black text-white rounded"
                             required
                         />
                     </div>

@@ -63,7 +63,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(500).json({ error: 'Failed to upload images' });
       }
 
-      const { title, description } = req.body;
+      const { title, description, episodes } = req.body;
       
       // Access uploaded files
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
@@ -79,8 +79,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
       try {
           const id = await getNextAnimeId();
-          if (id && title && description && image_url) {
-              const anime = await AnimeModel.create({ id, title, description, genres: genreArray, image_url, big_image_url });
+          if (id && title && description && image_url && big_image_url && episodes) {
+              const anime = await AnimeModel.create({ id, title, description, genres: genreArray, image_url, big_image_url, episodes});
               return res.status(201).json(anime);
           } else {
               return res.status(400).json({ error: 'Invalid data' });
@@ -100,7 +100,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           return res.status(500).json({ error: 'Failed to upload images' });
       }
 
-      const { id, title, description } = req.body;
+      const { id, title, description, episodes } = req.body;
       
       // Access uploaded files
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
@@ -128,10 +128,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const genreArray = Array.isArray(genres) ? genres : [genres];
 
       try {
-          if (id && title && description) {
+          if (id && title && description && image_url && big_image_url && episodes) {
               const updatedAnime = await AnimeModel.findOneAndUpdate(
                   { id: id },
-                  { title, description, genres: genreArray, image_url, big_image_url },
+                  { title, description, genres: genreArray, image_url, big_image_url , episodes},
                   { new: true }
               );
 
