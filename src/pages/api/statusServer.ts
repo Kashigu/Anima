@@ -1,5 +1,4 @@
 import connectToDatabase from "@/lib/db";
-import AnimeModel from "@/lib/models/AnimeModel";
 import CounterModel from "@/lib/models/CounterUserModel";
 import StatusModel from "@/lib/models/StatusModel";
 import { NextApiRequest, NextApiResponse } from "next";
