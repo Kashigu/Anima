@@ -1,12 +1,12 @@
 "use client";
-import { getEpisodes, getEpisodesOfAnimeById, getSearchedEpisodesOfAnime } from '@/lib/client/animesClient';
+import { getEpisodesOfAnimeById, getSearchedEpisodesOfAnime } from '@/lib/client/animesClient';
 import Image from 'next/image';
 import { SetStateAction, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Anime, Episode, Status, User } from '@/lib/interfaces/interface';
+import { Anime, Episode, EpisodeStatus, Status, User } from '@/lib/interfaces/interface';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faStar, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
-import { deleteStatus, getStatusByAnimeId, getStatusByUserId, postStatus } from '@/lib/client/status';
+import { deleteEpisodeStatus, deleteStatus, getEpisodeStatusByUserId, getStatusByAnimeId, getStatusByUserId, postEpisodeStatus, postStatus } from '@/lib/client/status';
 import useAuth from '@/app/hooks/useAuth';
 import toast from 'react-hot-toast';
 import usePagination from '@/app/hooks/usePagination';
@@ -34,6 +34,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
   const { currentPage: episodeCurrentPage, totalPages: episodeTotalPages, displayedItems: displayedEpisodes, goToNextPage: goToNextEpisodePage, goToPreviousPage: goToPreviousEpisodePage } = usePagination(episodes, itemsPerPage, resetPagination);
 
   const [statusUserData, setStatusUserData] = useState<Status []>([]);
+  const [episodeStatus, setEpisodeStatus] = useState<EpisodeStatus []>([]);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [isFavourite, setIsFavourite] = useState(false);
@@ -45,7 +46,9 @@ function AnimesPage({ anime }: AnimesPageProps) {
         const data = await getEpisodesOfAnimeById(anime.id);
         const statusAnimeData = await getStatusByAnimeId(anime.id);
         const statusUserData = await getStatusByUserId(userData?.id || '');
+        const episodeUserStatus = await getEpisodeStatusByUserId(userData?.id || '');
 
+        setEpisodeStatus(episodeUserStatus || []);
         setEpisodes(data || []);
         setStatusUserData(statusUserData || []);
         const counts = statusAnimeData.reduce((acc: { Likes: number, Dislikes: number }, stat: { status: string }) => {
@@ -72,6 +75,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
     
   }, [ userData, anime?.id] );
 
+  console.log(episodeStatus);
 
   const useDebouncedSearchEpisodeOfAnime = (
       query: string,
@@ -298,6 +302,37 @@ function AnimesPage({ anime }: AnimesPageProps) {
       );
     }
   }
+
+  const handleEpisode = (e: { target: { value: string; }; }) => {
+    if (!userData) {
+      toast.error('Please login to change status of this anime', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+      return;
+    }
+    const newEpisodeValue = e.target.value;
+    const episodeNumber = parseInt(newEpisodeValue);
+    const userEpisodeStatus = episodeStatus.find(
+      (status) => status.idUser === userData?.id && status.idAnime === anime?.id && status.episodes === episodeNumber
+    );
+    if (anime && userData){
+      if (userEpisodeStatus) {
+        setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
+        deleteEpisodeStatus(userEpisodeStatus.id);
+      } else {
+        const newEpisodeStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: episodeNumber };
+        setEpisodeStatus((prev) => [...prev, newEpisodeStatus]);
+        postEpisodeStatus(userData.id, anime.id, episodeNumber);
+      }
+    } 
+  
+
+  }
   
   if (!anime) {
     return <p>Anime not found</p>;
@@ -368,7 +403,24 @@ function AnimesPage({ anime }: AnimesPageProps) {
             <div className=" grid grid-cols-2">
               <div>
                 <h2 className="text-2xl mb-4 font-bold">Episodes</h2>
-                <input type="text" className="bg-black text-white px-2 py-1 rounded-lg w-10" value={0} />
+                <input
+                  type="text"
+                  className="bg-black text-white px-2 py-1 rounded-lg w-10"
+                  value={
+                    episodeStatus.find(
+                      (status) => 
+                        status.idUser === userData?.id && 
+                        status.idAnime === anime?.id
+                    )?.episodes || ''
+                  }
+                  onChange={handleEpisode}
+                  onBlur={handleEpisode}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleEpisode(e);
+                    }
+                  }}
+                />
                 <span className="text-white">/ {anime.episodes}</span>
               </div>
             </div>

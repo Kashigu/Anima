@@ -41,6 +41,14 @@ export interface Status {
   status: string;
 }
 
+export interface EpisodeStatus {
+  _id?: mongoose.Schema.Types.ObjectId;
+  id: string;
+  idAnime: string;
+  idUser: string;
+  episodes: number;
+}
+
 export interface Category {
   _id: mongoose.Schema.Types.ObjectId;
   id: string;

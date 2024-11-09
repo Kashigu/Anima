@@ -65,4 +65,39 @@ async function getSpecificStatusOfUser(userId: string, statusName: string) {
   }
 }
 
-export { getStatus, getStatusByUserId, getStatusByAnimeId , postStatus, deleteStatus, getSpecificStatusOfUser };
+
+async function getEpisodeStatusByUserId(id: string) {
+  try {
+    const response = await axiosClient.get(`api/episodeStatusServer?userId=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+    return null;
+  }
+}
+
+async function deleteEpisodeStatus(id: string) {
+  try {
+    const response = await axiosClient.delete(`api/episodeStatusServer?id=${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete status:', error);
+    return null;
+  }
+}
+
+async function postEpisodeStatus(userId: string, animeId: string, episodeStatus: number) {
+  try {
+    const response = await axiosClient.post('api/episodeStatusServer', {
+      userId,
+      animeId,
+      episodeStatus,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to post status:', error);
+    return null;
+  }
+}
+
+export { getStatus, getStatusByUserId, getStatusByAnimeId , postStatus, deleteStatus, getSpecificStatusOfUser , getEpisodeStatusByUserId , deleteEpisodeStatus , postEpisodeStatus };
