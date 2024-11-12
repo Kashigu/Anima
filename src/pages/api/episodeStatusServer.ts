@@ -27,7 +27,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     res.status(200).json(episodeStatus);
                 }
                 else {
-                    res.status(404).json({ error: 'Status not found' });
+                    res.status(404).json({ error: 'EpisodeStatus not found' });
                 }
                 if (animeId && typeof animeId === 'string') {
                 const episodeStatus = await EpisodeStatusModel.find({ idAnime: animeId });
@@ -39,14 +39,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }else if (req.method === 'POST') {
-        const { userId, animeId, episodeStatus } = req.body;
+        const { userId, animeId, episodes } = req.body;
+        
         try {
             const id = await getNextSequence('episodeStatusId');
             const newEpisodeStatus = new EpisodeStatusModel({
                 id,
                 idUser: userId,
                 idAnime: animeId,
-                episodeStatus,
+                episodes,
             });
             await newEpisodeStatus.save();
             res.status(201).json(newEpisodeStatus);
@@ -54,6 +55,24 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             console.error('Error fetching data:', err);
             res.status(500).json({ error: 'Internal Server Error' });
         }
+    }else if (req.method === 'DELETE') {
+        const { id } = req.query;
+        try {
+            const episodeStatus = await EpisodeStatusModel.findOneAndDelete
+            ({ id: id });
+            if (episodeStatus) {
+                res.status(200).json(episodeStatus);
+            }
+            else {
+                res.status(404).json({ error: 'EpisodeStatus not found' });
+            }
+        }
+        catch (err) {
+            console.error('Error deleting data:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }else {
+        res.status(405).json({ error: 'Method Not Allowed' });
     }
 }
 

@@ -35,6 +35,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
 
   const [statusUserData, setStatusUserData] = useState<Status []>([]);
   const [episodeStatus, setEpisodeStatus] = useState<EpisodeStatus []>([]);
+  const [localEpisodeValue, setLocalEpisodeValue] = useState('');
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [isFavourite, setIsFavourite] = useState(false);
@@ -45,12 +46,8 @@ function AnimesPage({ anime }: AnimesPageProps) {
       if (anime?.id) {
         const data = await getEpisodesOfAnimeById(anime.id);
         const statusAnimeData = await getStatusByAnimeId(anime.id);
-        const statusUserData = await getStatusByUserId(userData?.id || '');
-        const episodeUserStatus = await getEpisodeStatusByUserId(userData?.id || '');
-
-        setEpisodeStatus(episodeUserStatus || []);
         setEpisodes(data || []);
-        setStatusUserData(statusUserData || []);
+
         const counts = statusAnimeData.reduce((acc: { Likes: number, Dislikes: number }, stat: { status: string }) => {
           if (stat.status === "Likes") {
             acc.Likes += 1;
@@ -60,22 +57,33 @@ function AnimesPage({ anime }: AnimesPageProps) {
           return acc;
         }, { Likes: 0, Dislikes: 0 });
 
-        // Optional: Set the likes and dislikes count in state if needed
         setLikes(counts.Likes);
         setDislikes(counts.Dislikes);
         
-        const userFavouriteStatus = statusUserData.find(
-          (status: { idUser: string | undefined; idAnime: string; status: string; }) => status.idUser === userData?.id && status.idAnime === anime?.id && status.status === "Favourites"
-        );
-        setIsFavourite(!!userFavouriteStatus);
+        if (userData?.id) {
+          const statusUserData = await getStatusByUserId(userData.id);
+          const episodeUserStatus = await getEpisodeStatusByUserId(userData.id);
+          setEpisodeStatus(episodeUserStatus || []);
+          setStatusUserData(statusUserData || []);
+    
+          const userFavouriteStatus = statusUserData.find(
+            (status: { idUser: string | undefined; idAnime: string; status: string }) =>
+              status.idUser === userData.id && status.idAnime === anime.id && status.status === "Favourites"
+          );
+          setIsFavourite(!!userFavouriteStatus);
+
+          // Get the user's episode status for this anime if it exists
+          const userEpisode = episodeUserStatus.find(
+            (status: { idUser: string; idAnime: string; }) => status.idUser === userData.id && status.idAnime === anime.id
+          )?.episodes || '';
+          setLocalEpisodeValue(userEpisode); 
+        }
       }
     }
     gettingEpisodesAndDataOfAnime(); 
     
     
   }, [ userData, anime?.id] );
-
-  console.log(episodeStatus);
 
   const useDebouncedSearchEpisodeOfAnime = (
       query: string,
@@ -123,7 +131,6 @@ function AnimesPage({ anime }: AnimesPageProps) {
   const handleEpisodeSearchChange = (e: { target: { value: SetStateAction<string>; }; }) => {
     setEpisodeSearchQuery(e.target.value);
   };
-
 
   const handleLike = async () => {
     if (!userData) {
@@ -254,6 +261,10 @@ function AnimesPage({ anime }: AnimesPageProps) {
       }
     }
   }
+
+  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setLocalEpisodeValue(e.target.value);
+  };
   
   const handleStatusChange = async (e: { target: { value: string; }; }) => {
     if (!userData) {
@@ -303,7 +314,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
     }
   }
 
-  const handleEpisode = (e: { target: { value: string; }; }) => {
+  const handleSubmitEpisode = async (e: { target: { value: string; }; }) => {
     if (!userData) {
       toast.error('Please login to change status of this anime', {
         style: {
@@ -318,20 +329,38 @@ function AnimesPage({ anime }: AnimesPageProps) {
     const newEpisodeValue = e.target.value;
     const episodeNumber = parseInt(newEpisodeValue);
     const userEpisodeStatus = episodeStatus.find(
-      (status) => status.idUser === userData?.id && status.idAnime === anime?.id && status.episodes === episodeNumber
+      (status) => status.idUser === userData?.id && status.idAnime === anime?.id 
     );
-    if (anime && userData){
-      if (userEpisodeStatus) {
-        setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
-        deleteEpisodeStatus(userEpisodeStatus.id);
-      } else {
-        const newEpisodeStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: episodeNumber };
-        setEpisodeStatus((prev) => [...prev, newEpisodeStatus]);
-        postEpisodeStatus(userData.id, anime.id, episodeNumber);
-      }
-    } 
-  
 
+    if (anime && userData) {
+      if (userEpisodeStatus) {
+
+        // Optimistically update the UI by removing old status
+        setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
+  
+        // Delete the old status
+        await deleteEpisodeStatus(userEpisodeStatus.id);
+      }
+  
+      // Create a new status
+      const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: episodeNumber };
+      setEpisodeStatus((prev) => [...prev, newStatus]); 
+  
+      try {
+        const postedStatus = await postEpisodeStatus(userData.id, anime.id, episodeNumber);
+        if (postedStatus) {
+          setEpisodeStatus((prev) =>
+            prev.map((status) =>
+              status.id === 'temp' ? { ...status, id: postedStatus.id } : status
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Failed to post new episode status:', error);
+  
+        setEpisodeStatus((prev) => prev.filter((status) => status.id !== 'temp'));
+      }
+    }
   }
   
   if (!anime) {
@@ -406,18 +435,12 @@ function AnimesPage({ anime }: AnimesPageProps) {
                 <input
                   type="text"
                   className="bg-black text-white px-2 py-1 rounded-lg w-10"
-                  value={
-                    episodeStatus.find(
-                      (status) => 
-                        status.idUser === userData?.id && 
-                        status.idAnime === anime?.id
-                    )?.episodes || ''
-                  }
-                  onChange={handleEpisode}
-                  onBlur={handleEpisode}
+                  value={localEpisodeValue}
+                  onChange={handleInputChange}
+                  onBlur={handleSubmitEpisode}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      handleEpisode(e);
+                      handleSubmitEpisode(e);
                     }
                   }}
                 />

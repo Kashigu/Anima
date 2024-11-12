@@ -71,7 +71,7 @@ async function getEpisodeStatusByUserId(id: string) {
     const response = await axiosClient.get(`api/episodeStatusServer?userId=${id}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch status:', error);
+    console.error('Failed to fetch Status:', error);
     return null;
   }
 }
@@ -81,21 +81,21 @@ async function deleteEpisodeStatus(id: string) {
     const response = await axiosClient.delete(`api/episodeStatusServer?id=${id}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to delete status:', error);
+    console.error('Failed to delete EpisodeStatus:', error);
     return null;
   }
 }
 
-async function postEpisodeStatus(userId: string, animeId: string, episodeStatus: number) {
+async function postEpisodeStatus(userId: string, animeId: string, episodes: number) {
   try {
     const response = await axiosClient.post('api/episodeStatusServer', {
       userId,
       animeId,
-      episodeStatus,
+      episodes,
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to post status:', error);
+    console.error('Failed to post EpisodeStatus:', error);
     return null;
   }
 }
