@@ -345,10 +345,19 @@ function AnimesPage({ anime }: AnimesPageProps) {
       // Create a new status
       const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: episodeNumber };
       setEpisodeStatus((prev) => [...prev, newStatus]); 
-  
+
+      
+
       try {
         const postedStatus = await postEpisodeStatus(userData.id, anime.id, episodeNumber);
         if (postedStatus) {
+          // Only update the status if the episode number is valid
+          // if the user has watched all episodes, change the status to "Completed"
+          if (episodeNumber === anime.episodes) {
+            handleStatusChange({ target: { value: "Completed" } });
+          }else{
+            handleStatusChange({ target: { value: "Watching" } });
+          }
           setEpisodeStatus((prev) =>
             prev.map((status) =>
               status.id === 'temp' ? { ...status, id: postedStatus.id } : status
