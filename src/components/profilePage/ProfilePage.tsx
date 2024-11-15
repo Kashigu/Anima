@@ -1,5 +1,5 @@
 "use client";
-import { getStatusByUserId } from "@/lib/client/status";
+import { getEpisodeStatusByUserId, getStatusByUserId } from "@/lib/client/status";
 import { User } from "@/lib/interfaces/interface";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -21,11 +21,18 @@ const ProfilePage = ({ userId }: UserPageProps) => {
     "Likes": 0,
     "Dislikes": 0,
   });
+  const [episodeCounts, setEpisodeCounts] = useState(0);
 
   useEffect(() => {
     async function gettingStatus() {
       if (userId && userId.id) {
         const data = await getStatusByUserId(userId.id);
+        const dataEpisode = await getEpisodeStatusByUserId(userId.id);
+
+        // Count the total number of episodes watched
+        const totalEpisodes = dataEpisode.reduce((acc: number, episode: { episodes: number }) => {
+          return acc + episode.episodes;
+        }, 0);
   
         // Count each status type, excluding specific ones from the Total Entries
         const counts = data.reduce((acc: { [key: string]: number }, stat: { status: string }) => {
@@ -59,6 +66,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
         });
   
         setStatusCounts(counts);
+        setEpisodeCounts(totalEpisodes);
       }
     }
   
@@ -136,7 +144,7 @@ const ProfilePage = ({ userId }: UserPageProps) => {
             </div>
             <div className="flex justify-between">
               <span className="font-bold">Episodes:</span>
-              <span className="ml-24">{statusCounts.Episodes}</span>
+              <span className="ml-24">{episodeCounts}</span>
             </div>
             <div className="flex justify-between">
               <Link className="font-bold text-white hover:text-red-500" href={`/Profile/${userId.id}/UserList/6`}>Favourites:</Link>
