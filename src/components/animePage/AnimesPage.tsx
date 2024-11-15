@@ -11,6 +11,7 @@ import useAuth from '@/app/hooks/useAuth';
 import toast from 'react-hot-toast';
 import usePagination from '@/app/hooks/usePagination';
 import PaginationControls from '../PaginationControls';
+import { set } from 'mongoose';
 
 
 
@@ -278,6 +279,7 @@ function AnimesPage({ anime }: AnimesPageProps) {
       });
       return;
     }
+
     // Get the new status value from the dropdown
     const newStatusValue = e.target.value;
     // Find the current status of the user for this anime if it exists 
@@ -307,11 +309,45 @@ function AnimesPage({ anime }: AnimesPageProps) {
 
       // Perform the actual post request and get the new status ID from response
       const postedStatus = await postStatus(userData.id, anime.id, newStatusValue);
+
+      //Update episodes status if the status is "Completed"
+      if (newStatusValue === "Completed") {
+        const userEpisodeStatus = episodeStatus.find(
+          (status) => status.idUser === userData?.id && status.idAnime === anime?.id
+        );
+        if (userEpisodeStatus) {
+          setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
+          await deleteEpisodeStatus(userEpisodeStatus.id);
+        }
+        const newEpisodeStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: anime.episodes };
+        setEpisodeStatus((prev) => [...prev, newEpisodeStatus]);
+        const postedEpisodeStatus = await postEpisodeStatus(userData.id, anime.id, anime.episodes);
+        setEpisodeStatus((prev) =>
+          prev.map((status) =>
+            status.id === 'temp' ? { ...status, id: postedEpisodeStatus.id } : status
+          )
+        );
+        setLocalEpisodeValue(anime.episodes.toString());
+      }
+
+      // Delete episode status if the status is is "Select"
       
+
       setStatusUserData((prev) =>
         prev.map((status) => (status.id === 'temp' ? postedStatus : status))
       );
     }
+    if (newStatusValue === "Select") {
+      const userEpisodeStatus = episodeStatus.find(
+        (status) => status.idUser === userData?.id && status.idAnime === anime?.id
+      );
+      if (userEpisodeStatus) {
+        setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
+        await deleteEpisodeStatus(userEpisodeStatus.id);
+      }
+      setLocalEpisodeValue('');
+    }
+    
   }
 
   const handleSubmitEpisode = async (e: { target: { value: string; }; }) => {
@@ -326,16 +362,27 @@ function AnimesPage({ anime }: AnimesPageProps) {
       });
       return;
     }
+  
     const newEpisodeValue = e.target.value;
     const episodeNumber = parseInt(newEpisodeValue);
+    if (episodeNumber < 0 || episodeNumber > (anime?.episodes ?? 0)) {
+      toast.error('Invalid episode number', {
+        style: {
+          backgroundColor: '#070720',
+          color: '#ffffff',
+          fontWeight: 'bold',
+          border: '1px solid #ffffff',
+        },
+      });
+      return;
+    }
     const userEpisodeStatus = episodeStatus.find(
-      (status) => status.idUser === userData?.id && status.idAnime === anime?.id 
+      (status) => status.idUser === userData?.id && status.idAnime === anime?.id
     );
-
+  
     if (anime && userData) {
       if (userEpisodeStatus) {
-
-        // Optimistically update the UI by removing old status
+        // Optimistically update the UI by removing the old status
         setEpisodeStatus((prev) => prev.filter((status) => status.id !== userEpisodeStatus.id));
   
         // Delete the old status
@@ -344,33 +391,30 @@ function AnimesPage({ anime }: AnimesPageProps) {
   
       // Create a new status
       const newStatus = { _id: 'temp', id: 'temp', idUser: userData.id, idAnime: anime.id, episodes: episodeNumber };
-      setEpisodeStatus((prev) => [...prev, newStatus]); 
-
-      
-
+      setEpisodeStatus((prev) => [...prev, newStatus]);
+  
       try {
         const postedStatus = await postEpisodeStatus(userData.id, anime.id, episodeNumber);
-        if (postedStatus) {
+  
           // Only update the status if the episode number is valid
-          // if the user has watched all episodes, change the status to "Completed"
           if (episodeNumber === anime.episodes) {
             handleStatusChange({ target: { value: "Completed" } });
-          }else{
+          } else {
             handleStatusChange({ target: { value: "Watching" } });
           }
-          setEpisodeStatus((prev) =>
-            prev.map((status) =>
-              status.id === 'temp' ? { ...status, id: postedStatus.id } : status
-            )
-          );
-        }
+        setEpisodeStatus((prev) =>
+          prev.map((status) =>
+            status.id === 'temp' ? { ...status, id: postedStatus.id } : status
+          )
+        );
       } catch (error) {
         console.error('Failed to post new episode status:', error);
   
         setEpisodeStatus((prev) => prev.filter((status) => status.id !== 'temp'));
       }
     }
-  }
+  };
+  
   
   if (!anime) {
     return <p>Anime not found</p>;
