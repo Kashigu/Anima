@@ -23,6 +23,8 @@ The application supports multiple user types, including standard users and admin
 ![Episodes](./public/images/Episodes.png)
 <br/>
 ![Profile](./public/images/Profile.png)
+<br/>
+![StatusList](./public/images/StatusList.png)
 
 ## Important Notice
 
