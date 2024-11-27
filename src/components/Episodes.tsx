@@ -23,8 +23,11 @@ function Episodes() {
     useEffect(() => {
         async function gettingEpisodes() { 
             const data = await getEpisodes(); 
-            
-            setEpisodes(data || []);
+            if (data) {
+                setEpisodes(data.reverse());
+            } else {
+                setEpisodes([]);
+            }
         }
 
         gettingEpisodes(); 
@@ -36,7 +39,10 @@ function Episodes() {
       };
     
     {/* Debounce */}
-    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes , setResetPagination);
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, (fetchedEpisodes) => {
+        setEpisodes([...fetchedEpisodes].reverse());
+    }, getEpisodes , setResetPagination);
+
 
     return (
         <>

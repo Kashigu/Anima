@@ -28,7 +28,11 @@ function Animes({ showFeature }: AnimesProps) {
         async function gettingAnimes() {
             try {
                 const data = await getAnimes();
-                setAnimes(data || []);
+                if (data) {
+                    setAnimes(data.reverse());
+                } else {
+                    setAnimes([]);
+                }
             } catch (error) {
                 console.error('Failed to fetch animes:', error);
             }
@@ -42,7 +46,9 @@ function Animes({ showFeature }: AnimesProps) {
       };
     
       
-    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes, setResetPagination);
+    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, (fetchedEpisodes) => {
+        setAnimes([...fetchedEpisodes].reverse());
+    }, getAnimes, setResetPagination);
 
     const scroll = (direction: 'left' | 'right') => {
         setCurrentAnimeIndex((prevIndex) => {

@@ -24,7 +24,7 @@ const useDebouncedSearch = (
                     setData(defaultData || []);
                     if (setResetPagination) setResetPagination(false); // Reset pagination flag if setResetPagination is not null
                 }
-            }, 300);
+            },1000);
 
             return () => clearTimeout(delayDebounceFn);
         }, [query, fetchFunction, setData, defaultDataFetch, setResetPagination]);
