@@ -28,33 +28,56 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
+const handlers = {
+  GET: handleGet,
+  POST: handlePost,
+  PUT: handlePut,
+  DELETE: handleDelete,
+};
+
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectToDatabase();
+  const methodHandler = handlers[req.method as keyof typeof handlers];
 
-  if (req.method === 'GET') {
-    const { id ,search } = req.query;
-      try {
-        if (id && typeof id === 'string') {
-          const anime = await AnimeModel.findOne({ id });
-          if (anime) {
-            res.status(200).json(anime);
-          } else {
-            res.status(404).json({ error: 'Anime not found' });
-          }
-        } else if (search && typeof search === 'string' && search.trim() !== '') {
-          const animes = await AnimeModel.find({ title: { $regex: search, $options: 'i' } });
-          res.status(200).json(animes);
-        } else {
-          const animes = await AnimeModel.find({});
-          res.status(200).json(animes);
-        }
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
+  if (methodHandler) {
+    try {
+      return await methodHandler(req, res);
+    } catch (err) {
+      console.error('Error handling request:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.setHeader('Allow', Object.keys(handlers));
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+  const { id ,search } = req.query;
+  try {
+    if (id && typeof id === 'string') {
+      const anime = await AnimeModel.findOne({ id });
+      if (anime) {
+        res.status(200).json(anime);
+      } else {
+        res.status(404).json({ error: 'Anime not found' });
       }
+    } else if (search && typeof search === 'string' && search.trim() !== '') {
+      const animes = await AnimeModel.find({ title: { $regex: search, $options: 'i' } });
+      res.status(200).json(animes);
+    } else {
+      const animes = await AnimeModel.find({});
+      res.status(200).json(animes);
+    }
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 
-  } else if (req.method === 'POST') {
-    upload.fields([
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
+  upload.fields([
       { name: 'image_url', maxCount: 1 }, // Specify maxCount if expecting one file
       { name: 'big_image_url', maxCount: 1 } // Specify maxCount if expecting one file
   ])(req as any, res as any, async (err: any) => {
@@ -90,8 +113,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           res.status(500).json({ error: 'Internal Server Error' });
       }
   });
-  } else if (req.method === 'PUT') {
-    upload.fields([
+}
+
+async function handlePut(req: NextApiRequest, res: NextApiResponse) {
+  upload.fields([
       { name: 'image_url', maxCount: 1 }, 
       { name: 'big_image_url', maxCount: 1 }
   ])(req as any, res as any, async (err: any) => {
@@ -148,29 +173,24 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           res.status(500).json({ error: 'Internal Server Error' });
       }
   });
-  
-  
-  
-  }else if (req.method === 'DELETE') {
-    const { id } = req.query;
-    try {
-      if (id && typeof id === 'string') {
-        const anime = await AnimeModel.findOneAndDelete({ id });
-        if (!anime) {
-          return res.status(404).json({ error: 'Anime not found' });
-        }
-        await EpisodeModel.deleteMany({ idAnime: id });
-        return res.status(200).json({ message: 'Anime and related episodes successfully deleted', anime });
-      } else {
-        return res.status(400).json({ error: 'Invalid ID' });
+}
+
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+  const { id } = req.query;
+  try {
+    if (id && typeof id === 'string') {
+      const anime = await AnimeModel.findOneAndDelete({ id });
+      if (!anime) {
+        return res.status(404).json({ error: 'Anime not found' });
       }
-    } catch (err) {
-      console.error('Error deleting data:', err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      await EpisodeModel.deleteMany({ idAnime: id });
+      return res.status(200).json({ message: 'Anime and related episodes successfully deleted', anime });
+    } else {
+      return res.status(400).json({ error: 'Invalid ID' });
     }
-  } else {
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE', 'PUT']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+  } catch (err) {
+    console.error('Error deleting data:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 

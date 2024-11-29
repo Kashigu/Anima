@@ -4,22 +4,41 @@ import StatusModel from "@/lib/models/StatusModel";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Function to get the next user sequence
-    async function getNextSequence(name: string) {
-        const counter = await CounterModel.findOneAndUpdate(
-        { _id: name },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
-        );
-        return counter.seq;
-    }
+async function getNextSequence(name: string) {
+    const counter = await CounterModel.findOneAndUpdate(
+    { _id: name },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+    );
+    return counter.seq;
+}
 
+const handlers = {
+    GET: handleGet,
+    POST: handlePost,
+    DELETE: handleDelete,
+};
 
-  async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
     await connectToDatabase();
-    
-    if (req.method === 'GET') {
-       const {userId, search, animeId, statusName} = req.query;
-       try {
+    const methodHandler = handlers[req.method as keyof typeof handlers];
+
+    if (methodHandler) {
+        try {
+          return await methodHandler(req, res);
+        } catch (err) {
+          console.error('Error handling request:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+      } else {
+        res.setHeader('Allow', Object.keys(handlers));
+        res.status(405).end(`Method ${req.method} Not Allowed`);
+      }
+}
+
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+    const {userId, search, animeId, statusName} = req.query;
+    try {
         if (userId && typeof userId === 'string' && !statusName) {
             const status = await StatusModel.find({ idUser: userId });
             if (status) {
@@ -41,13 +60,15 @@ import { NextApiRequest, NextApiResponse } from "next";
             const status = await StatusModel.find({});
             res.status(200).json(status);
         }
-        } catch (err) {
+    } catch (err) {
         console.error('Error fetching data:', err);
         res.status(500).json({ error: 'Internal Server Error' });
-        }
-    } else if (req.method === 'POST') {
-        const { userId, animeId, status } = req.body;
-        try {
+    }
+}
+
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
+    const { userId, animeId, status } = req.body;
+    try {
         const id = await getNextSequence('statusId');
         const newStatus = new StatusModel({
             id,
@@ -57,13 +78,15 @@ import { NextApiRequest, NextApiResponse } from "next";
         });
         await newStatus.save();
         res.status(201).json(newStatus);
-        } catch (err) {
+    } catch (err) {
         console.error('Error creating status:', err);
         res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }else if (req.method === 'DELETE') {
-        const { id } = req.query;
-        try {
+    }
+}
+
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+    const { id } = req.query;
+    try {
         if (id && typeof id === 'string') {
             const status = await StatusModel.findOneAndDelete
             ({ id: id });
@@ -71,13 +94,9 @@ import { NextApiRequest, NextApiResponse } from "next";
                 res.status(200).json(status);
             }
         }
-        } catch (err) {
+    } catch (err) {
         console.error('Error deleting status:', err);
         res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }else {
-        res.setHeader('Allow', ['GET','DELETE','POST','PUT']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }
 

@@ -23,11 +23,33 @@ const getBackCategoryId = async () => {
     return counter.seq;
   };
 
+const handlers = {
+    GET: handleGet,
+    POST: handlePost,
+    PUT: handlePut,
+    DELETE: handleDelete
+};
+
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     await connectToDatabase();
-    
-    if (req.method === 'GET') {
-        const {id, search} = req.query;
+    const methodHandler = handlers[req.method as keyof typeof handlers];
+
+    if (methodHandler) {
+        try {
+          return await methodHandler(req, res);
+        } catch (err) {
+          console.error('Error handling request:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+      } else {
+        res.setHeader('Allow', Object.keys(handlers));
+        res.status(405).end(`Method ${req.method} Not Allowed`);
+      }
+}
+
+
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+    const {id, search} = req.query;
        try {
         if (id && typeof id === 'string') {
             const category = await CategoryModel.findOne({ id });
@@ -49,20 +71,24 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         console.error('Error fetching data:', err);
         res.status(500).json({ error: 'Internal Server Error' });
         }
-    }else if (req.method === 'POST') {
-        try {
+}
+
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
+    try {
         const { name } = req.body;
         const id = await getNextCategoryId();
         const newCategory = new CategoryModel({ id, name });
         await newCategory.save();
         res.status(201).json(newCategory);
-        } catch (err) {
+    } catch (err) {
         console.error('Error creating category:', err);
         await getBackCategoryId();
         res.status(500).json({ error: 'Internal Server Error' });
-        }    
-    } else if (req.method === 'PUT') {
-        try {
+    }    
+}
+
+async function handlePut(req: NextApiRequest, res: NextApiResponse) {
+    try {
         const { id, name } = req.body;
         const category = await CategoryModel.findOne({ id: id });
 
@@ -80,9 +106,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         console.error('Error updating category:', err);
         res.status(500).json({ error: 'Internal Server Error' });
         }
-    
-    }else if (req.method === 'DELETE') {
-        try {
+}
+
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
+    try {
         const { id } = req.query;
         const genre = await CategoryModel.findOne({ id: id });
 
@@ -101,10 +128,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         console.error('Error deleting category:', err);
         res.status(500).json({ error: 'Internal Server Error' });
         }
-    }else {
-        res.setHeader('Allow', ['GET','DELETE','POST','PUT']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
 }
 
 export default handler;
