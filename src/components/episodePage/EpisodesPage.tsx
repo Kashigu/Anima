@@ -144,7 +144,7 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
       </div>
       {/* Anime and episode details at the bottom */}
       <div className="flex justify-between items-center w-full mt-6 p-4 bg-black text-white">
-        <div className="flex items-center">
+        <div className="flex items-center w-1/3 space-x-4">
           <Link href={`/AnimesPage/${anime.id}`}>
             <Image
               src={anime.image_url}
@@ -160,7 +160,8 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
             </div>
           </Link>
         </div>
-        <div className="flex items-center space-x-6">
+        
+        <div className="flex items-center w-1/3 space-x-6 justify-center">
           {episodes.map((episode) => (
             <div key={episode.id} className="bg-custom-blue-dark text-white p-2 rounded-lg">
               <Link href={`/EpisodesPage/${anime.id}/${episode.id}`} className="relative flex flex-col items-center">
@@ -169,7 +170,8 @@ function EpisodesPage ({ animeEpisode, anime }: EpisodesPageProps) {
             </div>
           ))}
         </div>
-        <div className="flex items-center space-x-6">
+        
+        <div className="flex items-center w-1/3 space-x-6 justify-end">
           <p>SubsPlease - 720p</p>
           <a href="/download-link" className="text-yellow-500">Download</a>
         </div>
