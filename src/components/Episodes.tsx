@@ -39,9 +39,7 @@ function Episodes() {
       };
     
     {/* Debounce */}
-    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, (fetchedEpisodes) => {
-        setEpisodes([...fetchedEpisodes].reverse());
-    }, getEpisodes , setResetPagination);
+    useDebouncedSearch(searchEpisodeQuery, getSearchedEpisodes, setEpisodes, getEpisodes, setResetPagination, true);
 
 
     return (

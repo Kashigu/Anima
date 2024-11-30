@@ -46,9 +46,7 @@ function Animes({ showFeature }: AnimesProps) {
       };
     
       
-    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, (fetchedEpisodes) => {
-        setAnimes([...fetchedEpisodes].reverse());
-    }, getAnimes, setResetPagination);
+    useDebouncedSearch(searchAnimeQuery, getSearchedAnimes, setAnimes, getAnimes, setResetPagination, true);
 
     const scroll = (direction: 'left' | 'right') => {
         setCurrentAnimeIndex((prevIndex) => {
