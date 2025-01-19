@@ -6,6 +6,8 @@ The application supports multiple user types, including standard users and admin
 ## Stacks Used
 - Next.js / React
 - TypeScript
+- MongoDB
+- Mongoose
 
 ## Libraries Used
 - TailwindCSS
